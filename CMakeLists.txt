@@ -8,10 +8,12 @@ set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 add_subdirectory(dependencies/libhat)
 
 set(UGSDK_SRC
-    
+    "src/SDK.cpp"
+    "src/FMemory.cpp"
+    "src/private/OffsetFinder.cpp"
 )
 
-add_library(UGSDK STATIC ${UGSDK_SRC} "include/FMemory.hpp" "src/FMemory.cpp" "src/private/FMemory.cpp" "include/private/Private.hpp" "src/UGSDK.cpp")
+add_library(UGSDK STATIC ${UGSDK_SRC})
 
 target_include_directories(UGSDK PUBLIC
     dependencies/libhat/include

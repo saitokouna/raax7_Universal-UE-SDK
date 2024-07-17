@@ -1,5 +1,5 @@
-#include <FMemory.hpp>
-#include <private/Private.hpp>
+#include <ugsdk/FMemory.hpp>
+#include <private/Offsets.hpp>
 
 namespace SDK::FMemory
 {
@@ -13,6 +13,7 @@ namespace SDK::FMemory
     }
     void* Realloc(void* Original, uint32_t Size, uint32_t Alignment)
     {
-        return Private::Realloc(Original, Size, Alignment);
+        using ReallocParams = void* (*)(void* Original, uint32_t Size, uint32_t Alignment);
+        return ReallocParams(Offsets::FMemory::Realloc)(Original, Size, Alignment);
     }
 }

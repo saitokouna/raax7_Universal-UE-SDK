@@ -1,11 +1,12 @@
 #pragma once
 #include <cstdint>
 
+#define OFFSET_NOT_FOUND -1
+
 /** @brief This namespace is managed by the library and not meant for direct use. */
 namespace Offsets
 {
 	using Offset = uint16_t;
-	constexpr uint16_t OffsetNotFound = -1;
 
 	namespace UObject
 	{
@@ -16,22 +17,24 @@ namespace Offsets
 		inline Offset Name = 0x18;
 		inline Offset Outer = 0x20;
 	}
-
 	namespace UField
 	{
-		inline Offset Next = OffsetNotFound;
+		inline Offset Next = OFFSET_NOT_FOUND;
 	}
-
 	namespace UStruct
 	{
-		inline Offset Super = OffsetNotFound;
-		inline Offset Children = OffsetNotFound;
-		inline Offset ChildProperties = OffsetNotFound;
+		inline Offset Super = OFFSET_NOT_FOUND;
+		inline Offset Children = OFFSET_NOT_FOUND;
+		inline Offset ChildProperties = OFFSET_NOT_FOUND;
 	}
-
 	namespace UClass
 	{
-		inline Offset CastFlags = OffsetNotFound;
-		inline Offset DefaultObject = OffsetNotFound;
+		inline Offset CastFlags = OFFSET_NOT_FOUND;
+		inline Offset DefaultObject = OFFSET_NOT_FOUND;
+	}
+
+	namespace FMemory
+	{
+		inline uintptr_t Realloc = OFFSET_NOT_FOUND;
 	}
 }
