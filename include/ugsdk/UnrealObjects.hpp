@@ -4,7 +4,7 @@
 
 namespace SDK
 {
-    extern class FName;
+    //extern class FName;
     class UClass;
 
     class UObject
@@ -18,7 +18,7 @@ namespace SDK
         CREATE_GETTER_SETTER(int32_t, Flags, Offsets::UObject::Flags);
         CREATE_GETTER_SETTER(int32_t, Index, Offsets::UObject::Index);
         CREATE_GETTER_SETTER(UClass*, Class, Offsets::UObject::Class);
-        CREATE_GETTER_SETTER(FName, Name, Offsets::UObject::Name);
+        //CREATE_GETTER_SETTER(FName, Name, Offsets::UObject::Name);
         CREATE_GETTER_SETTER(UObject*, Outer, Offsets::UObject::Outer);
     };
 
