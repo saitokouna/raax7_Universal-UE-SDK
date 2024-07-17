@@ -1,0 +1,12 @@
+[submodule "dependencies/libhat"]
+	path = dependencies/libhat
+	url = https://github.com/BasedInc/libhat.git
+[submodule "dependencies/minhook"]
+	path = dependencies/minhook
+	url = https://github.com/TsudaKageyu/minhook.git
+[submodule "dependencies/loguru"]
+	path = dependencies/loguru
+	url = https://github.com/emilk/loguru.git
+[submodule "dependencies/imgui"]
+	path = dependencies/imgui
+	url = https://github.com/ocornut/imgui.git
