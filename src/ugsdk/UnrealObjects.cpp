@@ -8,7 +8,10 @@ namespace SDK
 	DEFINE_GETTER_SETTER(UObject, int32_t, Flags, SDK::Offsets::UObject::Flags);
 	DEFINE_GETTER_SETTER(UObject, int32_t, Index, SDK::Offsets::UObject::Index);
 	DEFINE_GETTER_SETTER(UObject, UClass*, Class, SDK::Offsets::UObject::Class);
-	DEFINE_GETTER_SETTER(UObject, FName*, Name, SDK::Offsets::UObject::Name);
+	FName* UObject::Name()
+	{
+		return (FName*)((uintptr_t)this + SDK::Offsets::UObject::Name);
+	}
 	DEFINE_GETTER_SETTER(UObject, UObject*, Outer, SDK::Offsets::UObject::Outer);
 
 	DEFINE_GETTER_SETTER(UField, UField*, Next, SDK::Offsets::UField::Next);
