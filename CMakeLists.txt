@@ -13,7 +13,7 @@ set(UGSDK_SRC
     "src/private/OffsetFinder.cpp"
 )
 
-add_library(UGSDK STATIC ${UGSDK_SRC} "src/ObjectArray.cpp")
+add_library(UGSDK STATIC ${UGSDK_SRC} "src/ObjectArray.cpp" "src/private/Memory.cpp")
 
 target_include_directories(UGSDK PUBLIC
     dependencies/libhat/include

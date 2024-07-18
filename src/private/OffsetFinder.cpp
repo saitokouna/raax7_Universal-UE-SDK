@@ -4,8 +4,9 @@
 #include <ugsdk/ObjectArray.hpp>
 #include <private/Offsets.hpp>
 #include <private/Settings.hpp>
+#include <private/Memory.hpp>
 
-#define RVA(addr, size)			((uint8_t*)(addr + *(uint32_t*)(addr + ((size) - 4)) + size))
+#include <Windows.h>
 
 namespace OffsetFinder
 {
@@ -29,7 +30,7 @@ namespace OffsetFinder
 		*/
 		constexpr hat::fixed_signature FMemorySignature = hat::compile_signature<"48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F1 41 8B D8 48 8B 0D ? ? ? ? 48 8B FA 48 85 C9">();
 		
-		const auto& Result = hat::find_pattern(FMemorySignature);
+		const auto& Result = hat::find_pattern(FMemorySignature, ".text");
 		SDK::Offsets::FMemory::Realloc = reinterpret_cast<uintptr_t>(Result.get());
 		return Result.has_result();
 	}
@@ -40,7 +41,7 @@ namespace OffsetFinder
 		constexpr hat::fixed_signature ChunkedGObjectsSignature = hat::compile_signature<"48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1">();
 		constexpr hat::fixed_signature FixedGObjectsSignature = hat::compile_signature<"48 8B 05 ? ? ? ? 48 8D 14 C8 EB 02">();
 
-		const auto& ChunkedGObjects = hat::find_pattern(ChunkedGObjectsSignature);
+		const auto& ChunkedGObjects = hat::find_pattern(ChunkedGObjectsSignature, ".text");
 		if (ChunkedGObjects.has_result())
 		{
 			SDK::Settings::ChunkedGObjects = true;
@@ -48,7 +49,7 @@ namespace OffsetFinder
 			return true;
 		}
 
-		const auto& FixedGObjects = hat::find_pattern(FixedGObjectsSignature);
+		const auto& FixedGObjects = hat::find_pattern(FixedGObjectsSignature, ".text");
 		if (FixedGObjects.has_result())
 		{
 			SDK::Settings::ChunkedGObjects = false;
@@ -57,5 +58,12 @@ namespace OffsetFinder
 		}
 
 		return false;
+	}
+	bool FindAppendString()
+	{
+		std::byte* Address = SDK::Memory::FindStringRef("ForwardShadingQuality_");
+		std::string AddressString = std::to_string((uintptr_t)Address);
+		MessageBoxA(NULL, AddressString.c_str(), AddressString.c_str(), MB_OK);
+		return true;
 	}
 }
