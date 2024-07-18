@@ -1,6 +1,9 @@
 #pragma once
+#include <ugsdk/Macros.hpp>
 #include <vector>
 #include <libhat.hpp>
+
+// Credit to https://github.com/Encryqed/Dumper-7 for the FindOffset function.
 
 namespace SDK::Memory
 {
@@ -41,5 +44,31 @@ namespace SDK::Memory
         }
 
         return nullptr;
+    }
+
+    template<int Alignement = 4, typename T>
+    inline int32_t FindOffset(std::vector<std::pair<void*, T>>& ObjectValuePair, int MinOffset = 0x28, int MaxOffset = 0x1A0)
+    {
+        int32_t HighestFoundOffset = MinOffset;
+
+        for (int i = 0; i < ObjectValuePair.size(); i++)
+        {
+            uint8_t* BytePtr = (uint8_t*)(ObjectValuePair[i].first);
+
+            for (int j = HighestFoundOffset; j < MaxOffset; j += Alignement)
+            {
+                if ((*reinterpret_cast<T*>(BytePtr + j)) == ObjectValuePair[i].second && j >= HighestFoundOffset)
+                {
+                    if (j > HighestFoundOffset)
+                    {
+                        HighestFoundOffset = j;
+                        i = 0;
+                    }
+                    j = MaxOffset;
+                }
+            }
+        }
+
+        return HighestFoundOffset != MinOffset ? HighestFoundOffset : OFFSET_NOT_FOUND;
     }
 }

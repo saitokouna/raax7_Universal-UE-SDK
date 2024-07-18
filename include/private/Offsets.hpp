@@ -1,7 +1,6 @@
 #pragma once
+#include <ugsdk/Macros.hpp>
 #include <cstdint>
-
-#define OFFSET_NOT_FOUND -1
 
 /** @brief This namespace is managed by the library and not meant for direct use. */
 namespace SDK::Offsets

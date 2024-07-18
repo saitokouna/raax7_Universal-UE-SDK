@@ -3,12 +3,15 @@
 #include <ugsdk/FMemory.hpp>
 #include <ostream>
 
-// Thanks to https://github.com/Fischsalat/UnrealContainers/tree/master for the proper TArray and FString support, along with TArrayIterator.
+// Thanks to https://github.com/Fischsalat/UnrealContainers for proper TArray, FString and TArrayIterator support.
 
 namespace SDK
 {
-	template<typename ArrayType>
-	class TArrayIterator;
+	namespace Itterator
+	{
+		template<typename ArrayType>
+		class TArrayIterator;
+	}
 
 	template<typename ArrayElementType>
 	class TArray
@@ -171,40 +174,8 @@ namespace SDK
 		inline explicit operator bool() const { return IsValid(); };
 
 	public:
-		template<typename T> friend TArrayIterator<T> begin(const TArray& Array);
-		template<typename T> friend TArrayIterator<T> end(const TArray& Array);
-	};
-
-	template<typename ArrayType>
-	class TArrayIterator
-	{
-	private:
-		TArray<ArrayType>& IteratedArray;
-		int32_t Index;
-
-	public:
-		TArrayIterator(const TArray<ArrayType>& Array, int32_t StartIndex = 0x0)
-			: IteratedArray(const_cast<TArray<ArrayType>&>(Array)), Index(StartIndex)
-		{
-		}
-
-	public:
-		inline int32_t GetIndex() { return Index; }
-
-		inline int32_t IsValid() { return IteratedArray.IsValidIndex(GetIndex()); }
-
-	public:
-		inline TArrayIterator& operator++() { ++Index; return *this; }
-		inline TArrayIterator& operator--() { --Index; return *this; }
-
-		inline       ArrayType& operator*() { return IteratedArray[GetIndex()]; }
-		inline const ArrayType& operator*() const { return IteratedArray[GetIndex()]; }
-
-		inline       ArrayType* operator->() { return &IteratedArray[GetIndex()]; }
-		inline const ArrayType* operator->() const { return &IteratedArray[GetIndex()]; }
-
-		inline bool operator==(const TArrayIterator& Other) const { return &IteratedArray == &Other.IteratedArray && Index == Other.Index; }
-		inline bool operator!=(const TArrayIterator& Other) const { return &IteratedArray != &Other.IteratedArray || Index != Other.Index; }
+		template<typename T> friend Itterator::TArrayIterator<T> begin(const TArray& Array);
+		template<typename T> friend Itterator::TArrayIterator<T> end(const TArray& Array);
 	};
 
 	class FString : public TArray<wchar_t>
@@ -268,4 +239,39 @@ namespace SDK
 		std::string GetRawString() const;
 		std::string ToString() const;
 	};
+
+	namespace Itterator
+	{
+		template<typename ArrayType>
+		class TArrayIterator
+		{
+		private:
+			TArray<ArrayType>& IteratedArray;
+			int32_t Index;
+
+		public:
+			TArrayIterator(const TArray<ArrayType>& Array, int32_t StartIndex = 0x0)
+				: IteratedArray(const_cast<TArray<ArrayType>&>(Array)), Index(StartIndex)
+			{
+			}
+
+		public:
+			inline int32_t GetIndex() { return Index; }
+
+			inline int32_t IsValid() { return IteratedArray.IsValidIndex(GetIndex()); }
+
+		public:
+			inline TArrayIterator& operator++() { ++Index; return *this; }
+			inline TArrayIterator& operator--() { --Index; return *this; }
+
+			inline       ArrayType& operator*() { return IteratedArray[GetIndex()]; }
+			inline const ArrayType& operator*() const { return IteratedArray[GetIndex()]; }
+
+			inline       ArrayType* operator->() { return &IteratedArray[GetIndex()]; }
+			inline const ArrayType* operator->() const { return &IteratedArray[GetIndex()]; }
+
+			inline bool operator==(const TArrayIterator& Other) const { return &IteratedArray == &Other.IteratedArray && Index == Other.Index; }
+			inline bool operator!=(const TArrayIterator& Other) const { return &IteratedArray != &Other.IteratedArray || Index != Other.Index; }
+		};
+	}
 }

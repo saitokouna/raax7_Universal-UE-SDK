@@ -8,6 +8,19 @@
 
 namespace OffsetFinder
 {
+	int32_t FindCastFlagsOffset()
+	{
+		std::vector<std::pair<void*, SDK::EClassCastFlags>> Infos;
+
+		Infos.push_back({ SDK::GObjects->FindObjectFast("Actor"), SDK::CASTCLASS_AActor });
+		Infos.push_back({ SDK::GObjects->FindObjectFast("Class"), SDK::CASTCLASS_UField | SDK::CASTCLASS_UStruct | SDK::CASTCLASS_UClass });
+
+		return SDK::Memory::FindOffset(Infos);
+	}
+}
+
+namespace OffsetFinder
+{
 	bool FindFMemoryRealloc()
 	{
 		// This signature has been very reliable from what I have tested.
@@ -43,7 +56,7 @@ namespace OffsetFinder
 		if (ChunkedGObjects.has_result())
 		{
 			SDK::Settings::ChunkedGObjects = true;
-			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 3));
+			SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 3));
 			return true;
 		}
 
@@ -51,7 +64,7 @@ namespace OffsetFinder
 		if (FixedGObjects.has_result())
 		{
 			SDK::Settings::ChunkedGObjects = false;
-			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)FixedGObjects.get(), 3));
+			SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)FixedGObjects.get(), 3));
 			return true;
 		}
 
@@ -61,6 +74,7 @@ namespace OffsetFinder
 	{
 		std::byte* Address = SDK::Memory::FindStringRef("ForwardShadingQuality_");
 		std::byte* End = Address + 0x60;
+
 		if (!Address)
 			return false;
 
@@ -82,5 +96,11 @@ namespace OffsetFinder
 		}
 
 		return false;
+	}
+
+	bool SetupUClassOffsets()
+	{
+		SDK::Offsets::UClass::CastFlags = FindCastFlagsOffset();
+		return SDK::Offsets::UClass::CastFlags != OFFSET_NOT_FOUND;
 	}
 }

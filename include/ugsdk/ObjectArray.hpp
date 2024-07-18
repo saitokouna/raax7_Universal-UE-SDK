@@ -1,13 +1,13 @@
 #pragma once
+#include <ugsdk/UnrealEnums.hpp>
 #include <cstdint>
+#include <string>
 
 namespace SDK
 {
-	extern class UObject;
-
 	struct FUObjectItem
 	{
-		UObject* Object;
+		class UObject* Object;
 		uint8_t Pad_0[0x10];
 	};
 
@@ -37,7 +37,7 @@ namespace SDK
 		inline int32_t Num() const { return NumElements; }
 		inline FUObjectItem** GetDecrytedObjPtr() const { return reinterpret_cast<FUObjectItem**>(DecryptPtr(Objects)); }
 
-		UObject* GetByIndex(const int32_t Index) const;
+		class UObject* GetByIndex(const int32_t Index) const;
 	};
 	class Fixed_TUObjectArray
 	{
@@ -56,7 +56,7 @@ namespace SDK
 		inline int Num() const { return NumElements; }
 		inline FUObjectItem* GetDecrytedObjPtr() const { return reinterpret_cast<FUObjectItem*>(DecryptPtr(Objects)); }
 
-		UObject* GetByIndex(const int32_t Index) const;
+		class UObject* GetByIndex(const int32_t Index) const;
 	};
 
 	class TUObjectArray
@@ -71,6 +71,13 @@ namespace SDK
 
 	public:
 		int32_t Num();
-		UObject* GetByIndex(int32_t Index);
+		class UObject* GetByIndex(int32_t Index);
+
+	public:
+		template<typename UEType = class UObject>
+		static UEType* FindObject(const std::string& FullName, EClassCastFlags RequiredType = CASTCLASS_None);
+
+		template<typename UEType = class UObject>
+		static UEType* FindObjectFast(const std::string& Name, EClassCastFlags RequiredType = CASTCLASS_None);
 	};
 }
