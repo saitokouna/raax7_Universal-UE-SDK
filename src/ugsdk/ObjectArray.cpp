@@ -23,9 +23,8 @@ namespace SDK
 	}
 
 	TUObjectArray::TUObjectArray(bool IsChunked, void* Objects)
+		: m_IsChunked(IsChunked), m_ChunkedObjects(nullptr), m_FixedObjects(nullptr)
 	{
-		m_IsChunked = IsChunked;
-
 		if (IsChunked)
 			m_ChunkedObjects = reinterpret_cast<Chunked_TUObjectArray*>(Objects);
 		else
@@ -46,38 +45,6 @@ namespace SDK
 			return m_ChunkedObjects->GetByIndex(Index);
 		else if (!m_IsChunked && m_FixedObjects)
 			return m_FixedObjects->GetByIndex(Index);
-
-		return nullptr;
-	}
-
-	template<typename UEType>
-	UEType* TUObjectArray::FindObject(const std::string& FullName, EClassCastFlags RequiredType)
-	{
-		for (int i = 0; i < GObjects->Num(); i++)
-		{
-			UObject* Object = GObjects->GetByIndex(i);
-			if (!Object)
-				continue;
-
-			if (Object->HasTypeFlag(RequiredType) && Object->GetFullName() == FullName)
-				return static_cast<UEType*>(Object);
-		}
-
-		return nullptr;
-	}
-
-	template<typename UEType>
-	UEType* TUObjectArray::FindObjectFast(const std::string& Name, EClassCastFlags RequiredType)
-	{
-		for (int i = 0; i < GObjects->Num(); i++)
-		{
-			UObject* Object = GObjects->GetByIndex(i);
-			if (!Object)
-				continue;
-
-			if (Object->HasTypeFlag(RequiredType) && Object->GetName() == Name)
-				return static_cast<UEType*>(Object);
-		}
 
 		return nullptr;
 	}

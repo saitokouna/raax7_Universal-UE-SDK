@@ -2,6 +2,7 @@
 #include <ugsdk/UnrealEnums.hpp>
 #include <cstdint>
 #include <string>
+#include <memory>
 
 namespace SDK
 {
@@ -80,4 +81,8 @@ namespace SDK
 		template<typename UEType = class UObject>
 		static UEType* FindObjectFast(const std::string& Name, EClassCastFlags RequiredType = CASTCLASS_None);
 	};
+
+	inline std::unique_ptr<TUObjectArray> GObjects = nullptr;
 }
+
+#include <ugsdk/ObjectArray.inl>

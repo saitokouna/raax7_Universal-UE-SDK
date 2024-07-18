@@ -1,14 +1,11 @@
 #pragma once
 #include <ugsdk/Macros.hpp>
-#include <ugsdk/ObjectArray.hpp>
 #include <ugsdk/UnrealEnums.hpp>
 #include <memory>
 #include <string>
 
 namespace SDK
 {
-    inline std::unique_ptr<class TUObjectArray> GObjects = nullptr;
-
     class UObject
     {
     private:
