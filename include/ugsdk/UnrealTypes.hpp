@@ -1,6 +1,7 @@
 #pragma once
 #include <Private/Offsets.hpp>
 #include <Private/Macros.hpp>
+#include <ugsdk/FMemory.hpp>
 #include <ostream>
 
 // Thanks to https://github.com/Fischsalat/UnrealContainers/tree/master for the proper TArray and FString support, along with TArrayIterator.
@@ -263,5 +264,9 @@ namespace SDK
 	public:
 		uint32_t ComparisonIdx;
 		uint32_t Number;
+
+	public:
+		std::string GetRawString() const;
+		std::string ToString() const;
 	};
 }

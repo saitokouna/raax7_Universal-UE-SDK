@@ -37,4 +37,8 @@ namespace SDK::Offsets
 	{
 		inline uintptr_t Realloc = 0;
 	}
+	namespace FName
+	{
+		inline uintptr_t AppendString = 0;
+	}
 }

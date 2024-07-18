@@ -2,10 +2,13 @@
 #include <vector>
 #include <libhat.hpp>
 
-#define RVA(addr, size)			((uint8_t*)(addr + *(uint32_t*)(addr + ((size) - 4)) + size))
-
 namespace SDK::Memory
 {
+    uintptr_t CalculateRVA(uintptr_t Addr, uint32_t Offset, uint32_t Size)
+    {
+        return Addr + *reinterpret_cast<uint32_t*>(Addr + Offset + Size - 4) + Size;
+    }
+
     std::byte* Find(hat::signature_view Signature) {
         if (const auto result = hat::find_pattern(Signature, ".rdata"); result.has_result())
             return (std::byte*)result.get();
@@ -50,7 +53,7 @@ namespace SDK::Memory
         auto ProcessPattern = [&StringAddr](const std::vector<std::byte*>& StringRefs) -> std::byte* {
             for (const auto& Found : StringRefs)
             {
-                if ((std::byte*)RVA(Found, 7) == StringAddr)
+                if ((std::byte*)CalculateRVA((uintptr_t)Found, 0, 7) == StringAddr)
                     return Found;
             }
 
@@ -66,6 +69,23 @@ namespace SDK::Memory
         {
             if (const auto Result = ProcessPattern(Search); Result)
                 return Result;
+        }
+
+        return nullptr;
+    }
+
+    std::byte* FindPatternInRange(const std::byte* Start, const std::byte* End, hat::signature_view Signature)
+    {
+        const std::byte* DataBegin = Start;
+        const std::byte* DataEnd = End;
+
+        while (DataBegin < DataEnd) {
+            auto Result = hat::find_pattern(DataBegin, DataEnd, Signature);
+            if (!Result.has_result())
+                break;
+
+            std::byte* ResPtr = (std::byte*)(&(*Result.get()));
+            DataBegin = ResPtr + 1;
         }
 
         return nullptr;

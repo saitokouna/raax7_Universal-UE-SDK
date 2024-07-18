@@ -6,8 +6,6 @@
 #include <private/Settings.hpp>
 #include <private/Memory.hpp>
 
-#include <Windows.h>
-
 namespace OffsetFinder
 {
 	bool FindFMemoryRealloc()
@@ -45,7 +43,7 @@ namespace OffsetFinder
 		if (ChunkedGObjects.has_result())
 		{
 			SDK::Settings::ChunkedGObjects = true;
-			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)RVA((uint8_t*)(ChunkedGObjects.get()), 7));
+			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 0, 7));
 			return true;
 		}
 
@@ -53,7 +51,7 @@ namespace OffsetFinder
 		if (FixedGObjects.has_result())
 		{
 			SDK::Settings::ChunkedGObjects = false;
-			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)RVA((uint8_t*)(FixedGObjects.get()), 7));
+			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)FixedGObjects.get(), 0, 7));
 			return true;
 		}
 
@@ -62,8 +60,27 @@ namespace OffsetFinder
 	bool FindAppendString()
 	{
 		std::byte* Address = SDK::Memory::FindStringRef("ForwardShadingQuality_");
-		std::string AddressString = std::to_string((uintptr_t)Address);
-		MessageBoxA(NULL, AddressString.c_str(), AddressString.c_str(), MB_OK);
-		return true;
+		std::byte* End = Address + 0x60;
+		if (!Address)
+			return false;
+		
+		const std::vector<std::pair<hat::fixed_signature<10>, int>> Signatures = {
+			{ hat::compile_signature<"48 8D ? ? 48 8D ? ? E8 ?">(), 13 },
+			{ hat::compile_signature<"48 8D ? ? ? 48 8D ? ? E8">(), 14 },
+			{ hat::compile_signature<"48 8D ? ? 49 8B ? E8 ? ?">(), 12 },
+			{ hat::compile_signature<"48 8D ? ? ? 49 8B ? E8 ?">(), 13 }
+		};
+
+		for (const auto& Sig : Signatures)
+		{
+			std::byte* Result = SDK::Memory::FindPatternInRange(Address, End, Sig.first);
+			if (Result)
+			{
+				SDK::Offsets::FName::AppendString = SDK::Memory::CalculateRVA((uintptr_t)SDK::Offsets::FName::AppendString, 0, Sig.second);
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
