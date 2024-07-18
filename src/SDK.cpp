@@ -11,6 +11,9 @@ namespace SDK
 		if (!OffsetFinder::FindGObjects())
 			return SDK_FAILED_GOBJECTS;
 
+		if (!OffsetFinder::FindAppendString())
+			return SDK_FAILED_APPENDSTRING;
+
 		return SDK_SUCCESS;
 	}
 }
