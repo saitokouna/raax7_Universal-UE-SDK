@@ -1,6 +1,7 @@
 #pragma once
 #include <ugsdk/Macros.hpp>
 #include <ugsdk/ObjectArray.hpp>
+#include <ugsdk/UnrealEnums.hpp>
 #include <memory>
 #include <string>
 
