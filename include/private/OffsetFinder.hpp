@@ -3,4 +3,5 @@
 namespace OffsetFinder
 {
 	bool FindFMemoryRealloc();
+	bool FindGObjects();
 }

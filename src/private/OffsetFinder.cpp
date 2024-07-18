@@ -1,6 +1,11 @@
 #include <libhat.hpp>
 #include <ugsdk/FMemory.hpp>
+#include <ugsdk/UnrealObjects.hpp>
+#include <ugsdk/ObjectArray.hpp>
 #include <private/Offsets.hpp>
+#include <private/Settings.hpp>
+
+#define RVA(addr, size)			((uint8_t*)(addr + *(uint32_t*)(addr + ((size) - 4)) + size))
 
 namespace OffsetFinder
 {
@@ -25,7 +30,32 @@ namespace OffsetFinder
 		constexpr hat::fixed_signature FMemorySignature = hat::compile_signature<"48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F1 41 8B D8 48 8B 0D ? ? ? ? 48 8B FA 48 85 C9">();
 		
 		const auto& Result = hat::find_pattern(FMemorySignature);
-		Offsets::FMemory::Realloc = reinterpret_cast<uintptr_t>(Result.get());
+		SDK::Offsets::FMemory::Realloc = reinterpret_cast<uintptr_t>(Result.get());
 		return Result.has_result();
+	}
+	bool FindGObjects()
+	{
+		SDK::Settings::ChunkedGObjects = true;
+
+		constexpr hat::fixed_signature ChunkedGObjectsSignature = hat::compile_signature<"48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1">();
+		constexpr hat::fixed_signature FixedGObjectsSignature = hat::compile_signature<"48 8B 05 ? ? ? ? 48 8D 14 C8 EB 02">();
+
+		const auto& ChunkedGObjects = hat::find_pattern(ChunkedGObjectsSignature);
+		if (ChunkedGObjects.has_result())
+		{
+			SDK::Settings::ChunkedGObjects = true;
+			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)RVA((uint8_t*)(ChunkedGObjects.get()), 7));
+			return true;
+		}
+
+		const auto& FixedGObjects = hat::find_pattern(FixedGObjectsSignature);
+		if (FixedGObjects.has_result())
+		{
+			SDK::Settings::ChunkedGObjects = false;
+			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)RVA((uint8_t*)(FixedGObjects.get()), 7));
+			return true;
+		}
+
+		return false;
 	}
 }

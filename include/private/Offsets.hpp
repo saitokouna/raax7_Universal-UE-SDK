@@ -4,7 +4,7 @@
 #define OFFSET_NOT_FOUND -1
 
 /** @brief This namespace is managed by the library and not meant for direct use. */
-namespace Offsets
+namespace SDK::Offsets
 {
 	using Offset = uint16_t;
 
@@ -35,6 +35,6 @@ namespace Offsets
 
 	namespace FMemory
 	{
-		inline uintptr_t Realloc = OFFSET_NOT_FOUND;
+		inline uintptr_t Realloc = 0;
 	}
 }
