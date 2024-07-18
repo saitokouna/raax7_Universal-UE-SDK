@@ -67,7 +67,7 @@ namespace SDK
 	}
 
 	template<typename UEType>
-	static UEType* FindObjectFast(const std::string& Name, EClassCastFlags RequiredType)
+	static UEType* TUObjectArray::FindObjectFast(const std::string& Name, EClassCastFlags RequiredType)
 	{
 		for (int i = 0; i < GObjects->Num(); i++)
 		{
