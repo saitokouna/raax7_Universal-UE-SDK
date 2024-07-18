@@ -1,4 +1,5 @@
 #include <ugsdk/UnrealTypes.hpp>
+#include <private/Offsets.hpp>
 
 namespace SDK
 {

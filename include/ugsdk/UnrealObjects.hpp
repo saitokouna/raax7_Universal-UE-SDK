@@ -1,12 +1,12 @@
 #pragma once
-#include <Private/Offsets.hpp>
-#include <Private/Macros.hpp>
+#include <ugsdk/Macros.hpp>
+#include <ugsdk/ObjectArray.hpp>
 #include <memory>
 
 namespace SDK
 {
-    //extern class FName;
-    class TUObjectArray;
+    extern class FName;
+    extern class TUObjectArray;
     class UClass;
 
     class UObject
@@ -19,12 +19,12 @@ namespace SDK
         static inline std::unique_ptr<TUObjectArray> Objects = nullptr;
 
     public:
-        CREATE_GETTER_SETTER(void**, VFT, SDK::Offsets::UObject::VFT);
-        CREATE_GETTER_SETTER(int32_t, Flags, SDK::Offsets::UObject::Flags);
-        CREATE_GETTER_SETTER(int32_t, Index, SDK::Offsets::UObject::Index);
-        CREATE_GETTER_SETTER(UClass*, Class, SDK::Offsets::UObject::Class);
-        //CREATE_GETTER_SETTER(FName, Name, SDK::Offsets::UObject::Name);
-        CREATE_GETTER_SETTER(UObject*, Outer, SDK::Offsets::UObject::Outer);
+        DECLARE_GETTER_SETTER(void**, VFT);
+        DECLARE_GETTER_SETTER(int32_t, Flags);
+        DECLARE_GETTER_SETTER(int32_t, Index);
+        DECLARE_GETTER_SETTER(UClass*, Class);
+        DECLARE_GETTER_SETTER(FName*, Name);
+        DECLARE_GETTER_SETTER(UObject*, Outer);
     };
 
     class UField : public UObject
@@ -34,7 +34,7 @@ namespace SDK
         ~UField() = delete;
 
     public:
-        CREATE_GETTER_SETTER(UField*, Next, SDK::Offsets::UField::Next);
+        DECLARE_GETTER_SETTER(UField*, Next);
     };
 
     class UStruct : public UField
@@ -44,9 +44,9 @@ namespace SDK
         ~UStruct() = delete;
 
     public:
-        CREATE_GETTER_SETTER(UStruct*, Super, SDK::Offsets::UStruct::Super);
-        CREATE_GETTER_SETTER(UField*, Children, SDK::Offsets::UStruct::Children);
-        //CREATE_GETTER_SETTER(FField*, ChildProperties, SDK::Offsets::UStruct::ChildProperties);
+        DECLARE_GETTER_SETTER(UStruct*, Super);
+        DECLARE_GETTER_SETTER(UField*, Children);
+        //DECLARE_GETTER_SETTER(FField*, ChildProperties);
     };
 
     class UClass : public UStruct
@@ -56,7 +56,7 @@ namespace SDK
         ~UClass() = delete;
 
     public:
-        //CREATE_GETTER_SETTER(EClassCastFlags, CastFlags, SDK::Offsets::UClass::CastFlags);
-        CREATE_GETTER_SETTER(UObject*, DefaultObject, SDK::Offsets::UClass::DefaultObject);
+        //DECLARE_GETTER_SETTER(EClassCastFlags, CastFlags);
+        DECLARE_GETTER_SETTER(UObject*, DefaultObject);
     };
 }

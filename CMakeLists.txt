@@ -9,11 +9,11 @@ add_subdirectory(dependencies/libhat)
 
 set(UGSDK_SRC
     "src/SDK.cpp"
-    "src/FMemory.cpp"
+    "src/ugsdk/FMemory.cpp"
     "src/private/OffsetFinder.cpp"
 )
 
-add_library(UGSDK STATIC ${UGSDK_SRC} "src/ObjectArray.cpp" "src/private/Memory.cpp" "src/UnrealTypes.cpp")
+add_library(UGSDK STATIC ${UGSDK_SRC} "src/ugsdk/ObjectArray.cpp" "src/private/Memory.cpp" "src/ugsdk/UnrealTypes.cpp" "src/ugsdk/UnrealObjects.cpp")
 
 target_include_directories(UGSDK PUBLIC
     dependencies/libhat/include

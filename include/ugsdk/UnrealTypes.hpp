@@ -1,6 +1,5 @@
 #pragma once
-#include <Private/Offsets.hpp>
-#include <Private/Macros.hpp>
+#include <ugsdk/Macros.hpp>
 #include <ugsdk/FMemory.hpp>
 #include <ostream>
 

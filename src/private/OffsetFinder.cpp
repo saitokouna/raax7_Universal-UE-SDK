@@ -27,7 +27,7 @@ namespace OffsetFinder
 		48 85 C9		test    rcx, rcx
 		*/
 		constexpr hat::fixed_signature FMemorySignature = hat::compile_signature<"48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F1 41 8B D8 48 8B 0D ? ? ? ? 48 8B FA 48 85 C9">();
-		
+
 		const auto& Result = hat::find_pattern(FMemorySignature, ".text");
 		SDK::Offsets::FMemory::Realloc = reinterpret_cast<uintptr_t>(Result.get());
 		return Result.has_result();
@@ -43,7 +43,7 @@ namespace OffsetFinder
 		if (ChunkedGObjects.has_result())
 		{
 			SDK::Settings::ChunkedGObjects = true;
-			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 0, 7));
+			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 3));
 			return true;
 		}
 
@@ -51,7 +51,7 @@ namespace OffsetFinder
 		if (FixedGObjects.has_result())
 		{
 			SDK::Settings::ChunkedGObjects = false;
-			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)FixedGObjects.get(), 0, 7));
+			SDK::UObject::Objects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)FixedGObjects.get(), 3));
 			return true;
 		}
 
@@ -63,9 +63,9 @@ namespace OffsetFinder
 		std::byte* End = Address + 0x60;
 		if (!Address)
 			return false;
-		
+
 		const std::vector<std::pair<hat::fixed_signature<10>, int>> Signatures = {
-			{ hat::compile_signature<"48 8D ? ? 48 8D ? ? E8 ?">(), 13 },
+			{ hat::compile_signature<"48 8D ? ? 48 8D ? ? E8 ?">(), 9 },
 			{ hat::compile_signature<"48 8D ? ? ? 48 8D ? ? E8">(), 14 },
 			{ hat::compile_signature<"48 8D ? ? 49 8B ? E8 ? ?">(), 12 },
 			{ hat::compile_signature<"48 8D ? ? ? 49 8B ? E8 ?">(), 13 }
@@ -76,7 +76,7 @@ namespace OffsetFinder
 			std::byte* Result = SDK::Memory::FindPatternInRange(Address, End, Sig.first);
 			if (Result)
 			{
-				SDK::Offsets::FName::AppendString = SDK::Memory::CalculateRVA((uintptr_t)SDK::Offsets::FName::AppendString, 0, Sig.second);
+				SDK::Offsets::FName::AppendString = SDK::Memory::CalculateRVA((uintptr_t)Result, Sig.second);
 				return true;
 			}
 		}

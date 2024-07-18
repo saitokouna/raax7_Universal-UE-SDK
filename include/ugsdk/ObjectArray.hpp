@@ -1,8 +1,10 @@
 #pragma once
-#include <ugsdk/UnrealObjects.hpp>
+#include <cstdint>
 
 namespace SDK
 {
+	extern class UObject;
+
 	struct FUObjectItem
 	{
 		UObject* Object;
@@ -35,7 +37,7 @@ namespace SDK
 		inline int32_t Num() const { return NumElements; }
 		inline FUObjectItem** GetDecrytedObjPtr() const { return reinterpret_cast<FUObjectItem**>(DecryptPtr(Objects)); }
 
-		class UObject* GetByIndex(const int32_t Index) const;
+		UObject* GetByIndex(const int32_t Index) const;
 	};
 	class Fixed_TUObjectArray
 	{
