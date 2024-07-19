@@ -6,5 +6,5 @@ namespace OffsetFinder
 	bool FindGObjects();
 	bool FindAppendString();
 
-	bool SetupUClassOffsets();
+	SDK::SDKStatus SetupMemberOffsets();
 }

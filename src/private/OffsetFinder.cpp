@@ -5,15 +5,76 @@
 #include <private/Offsets.hpp>
 #include <private/Settings.hpp>
 #include <private/Memory.hpp>
+#include <SDKStatus.hpp>
+
+// Most of the offset finding is copied 1:1 from https://github.com/Encryqed/Dumper-7, so credits to them.
+//
+// Most people would consider this skidding, but I would think it's what open source is for.
+// Someone has found the most optimal way to find something, why should I limit my library
+// just to avoid copying them?
+
+using namespace SDK::Offsets;
 
 namespace OffsetFinder
 {
-	int32_t FindCastFlagsOffset()
+	int32_t FindUStructChildrenOffset()
+	{
+		std::vector<std::pair<void*, void*>> Infos;
+
+		Infos.push_back({ SDK::GObjects->FindObjectFast("PlayerController"), SDK::GObjects->FindObjectFastInOuter("WasInputKeyJustReleased", "PlayerController") });
+		Infos.push_back({ SDK::GObjects->FindObjectFast("Controller"), SDK::GObjects->FindObjectFastInOuter("UnPossess", "Controller") });
+
+		if (SDK::Memory::FindOffset(Infos) == OFFSET_NOT_FOUND)
+		{
+			Infos.clear();
+
+			Infos.push_back({ SDK::GObjects->FindObjectFast("Vector"), SDK::GObjects->FindObjectFastInOuter("X", "Vector") });
+			Infos.push_back({ SDK::GObjects->FindObjectFast("Vector4"), SDK::GObjects->FindObjectFastInOuter("X", "Vector4") });
+			Infos.push_back({ SDK::GObjects->FindObjectFast("Vector2D"), SDK::GObjects->FindObjectFastInOuter("X", "Vector2D") });
+			Infos.push_back({ SDK::GObjects->FindObjectFast("Guid"), SDK::GObjects->FindObjectFastInOuter("A","Guid") });
+
+			return SDK::Memory::FindOffset(Infos);
+		}
+
+		SDK::Settings::UsesFProperty = true;
+
+		return SDK::Memory::FindOffset(Infos);
+	}
+	int32_t FindUFieldNextOffset()
+	{
+		uint8_t* KismetSystemLibraryChild = reinterpret_cast<uint8_t*>(SDK::GObjects->FindObjectFast<SDK::UStruct>("KismetSystemLibrary")->Children());
+		uint8_t* KismetStringLibraryChild = reinterpret_cast<uint8_t*>(SDK::GObjects->FindObjectFast<SDK::UStruct>("KismetStringLibrary")->Children());
+
+		return SDK::Memory::GetValidPointerOffset(KismetSystemLibraryChild, KismetStringLibraryChild, SDK::Offsets::UObject::Outer + 0x08, 0x48);
+	}
+	int32_t FindUStructSuperOffset()
+	{
+		std::vector<std::pair<void*, void*>> Infos;
+
+		Infos.push_back({ SDK::GObjects->FindObjectFast("Struct"), SDK::GObjects->FindObjectFast("Field") });
+		Infos.push_back({ SDK::GObjects->FindObjectFast("Class"), SDK::GObjects->FindObjectFast("Struct") });
+
+		// Thanks to the ue4 dev who decided UStruct should be spelled Ustruct
+		if (Infos[0].first == nullptr)
+			Infos[0].first = Infos[1].second = SDK::GObjects->FindObjectFast("struct");
+
+		return SDK::Memory::FindOffset(Infos);
+	}
+	int32_t FindUClassCastFlagsOffset()
 	{
 		std::vector<std::pair<void*, SDK::EClassCastFlags>> Infos;
 
 		Infos.push_back({ SDK::GObjects->FindObjectFast("Actor"), SDK::CASTCLASS_AActor });
 		Infos.push_back({ SDK::GObjects->FindObjectFast("Class"), SDK::CASTCLASS_UField | SDK::CASTCLASS_UStruct | SDK::CASTCLASS_UClass });
+
+		return SDK::Memory::FindOffset(Infos);
+	}
+	int32_t FindUClassDefaultObjectOffset()
+	{
+		std::vector<std::pair<void*, void*>> Infos;
+
+		Infos.push_back({ SDK::GObjects->FindObjectFast("Object"), SDK::GObjects->FindObjectFast("Default__Object") });
+		Infos.push_back({ SDK::GObjects->FindObjectFast("Field"), SDK::GObjects->FindObjectFast("Default__Field") });
 
 		return SDK::Memory::FindOffset(Infos);
 	}
@@ -98,9 +159,32 @@ namespace OffsetFinder
 		return false;
 	}
 
-	bool SetupUClassOffsets()
+	SDK::SDKStatus SetupMemberOffsets()
 	{
-		SDK::Offsets::UClass::CastFlags = FindCastFlagsOffset();
-		return SDK::Offsets::UClass::CastFlags != OFFSET_NOT_FOUND;
+		// The order of these is important as there is a dependency chain.
+
+		UStruct::Children = FindUStructChildrenOffset();
+		if (UStruct::Children == OFFSET_NOT_FOUND)
+			return SDK::SDK_FAILED_UCLASS_CHILDREN;
+
+		UField::Next = FindUFieldNextOffset();
+		if (UField::Next == OFFSET_NOT_FOUND)
+			return SDK::SDK_FAILED_UFIELD_NEXT;
+
+		UStruct::Super = FindUStructSuperOffset();
+		if (UStruct::Super == OFFSET_NOT_FOUND)
+			return SDK::SDK_FAILED_USRTUCT_SUPER;
+
+		UClass::CastFlags = FindUClassCastFlagsOffset();
+		if (UClass::CastFlags == OFFSET_NOT_FOUND)
+			return SDK::SDK_FAILED_UCLASS_CASTFLAGS;
+
+		// ...
+
+		UClass::DefaultObject = FindUClassDefaultObjectOffset();
+		if (UClass::DefaultObject == OFFSET_NOT_FOUND)
+			return SDK::SDK_FAILED_UCLASS_DEFAULTOBJECT;
+
+		return SDK::SDK_SUCCESS;
 	}
 }

@@ -4,4 +4,5 @@
 namespace SDK::Settings
 {
 	inline bool ChunkedGObjects = true;
+	inline bool UsesFProperty = false;
 }

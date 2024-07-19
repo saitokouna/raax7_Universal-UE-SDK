@@ -14,9 +14,6 @@ namespace SDK
 		if (!OffsetFinder::FindAppendString())
 			return SDK_FAILED_APPENDSTRING;
 
-		if (!OffsetFinder::SetupUClassOffsets())
-			return SDK_FAILED_UCLASSOFFSETS;
-
-		return SDK_SUCCESS;
+		return OffsetFinder::SetupMemberOffsets();
 	}
 }
