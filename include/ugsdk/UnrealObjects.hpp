@@ -60,4 +60,24 @@ namespace SDK
         DECLARE_GETTER_SETTER(EClassCastFlags, CastFlags);
         DECLARE_GETTER_SETTER(class UObject*, DefaultObject);
     };
+
+    class UProperty : public UObject
+    {
+    private:
+        UProperty() = delete;
+        ~UProperty() = delete;
+
+    public:
+        DECLARE_GETTER_SETTER(int32_t, Offset);
+    };
+
+    class UBoolProperty : public UProperty
+    {
+    private:
+        UBoolProperty() = delete;
+        ~UBoolProperty() = delete;
+
+    public:
+        DECLARE_GETTER_SETTER(uint8_t, ByteMask);
+    };
 }

@@ -63,4 +63,8 @@ namespace SDK
 
 	DEFINE_GETTER_SETTER(UClass, EClassCastFlags, CastFlags, SDK::Offsets::UClass::CastFlags);
 	DEFINE_GETTER_SETTER(UClass, UObject*, DefaultObject, SDK::Offsets::UClass::DefaultObject);
+
+	DEFINE_GETTER_SETTER(UProperty, int32_t, Offset, SDK::Offsets::UProperty::Offset);
+
+	DEFINE_GETTER_SETTER(UBoolProperty, uint8_t, ByteMask, SDK::Offsets::UBoolProperty::ByteMask);
 }
