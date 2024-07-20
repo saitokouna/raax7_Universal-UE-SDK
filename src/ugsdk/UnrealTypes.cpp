@@ -21,7 +21,7 @@ namespace SDK
 		if (!AppendString)
 			AppendString = reinterpret_cast<void(*)(const FName*, FString*)>(SDK::Offsets::FName::AppendString);
 
-		thread_local FString TempString;
+		FString TempString;
 		AppendString(const_cast<SDK::FName*>(this), &TempString);
 
 		return TempString.ToString();
