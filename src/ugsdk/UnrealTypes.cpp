@@ -5,6 +5,7 @@
 namespace SDK
 {
 	FName::FName(const std::wstring& Str)
+		: ComparisonIdx(0), Number(0)
 	{
 		static void(*Constructor)(const FName*, const wchar_t*, bool) = nullptr;
 

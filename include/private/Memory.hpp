@@ -1,16 +1,18 @@
 #pragma once
 #include <ugsdk/Macros.hpp>
-#include <vector>
 #include <libhat.hpp>
 #include <Windows.h>
+#include <vector>
+#include <functional>
 
 // Credit to https://github.com/Encryqed/Dumper-7 for the FindOffset function.
 
 namespace SDK::Memory
 {
     uintptr_t CalculateRVA(uintptr_t Addr, uint32_t Offset);
+    bool Is32BitRelativeAddress(uint8_t ModRM);
 
-    std::vector<std::byte*> FindAll(hat::signature_view Signature);
+    std::byte* ItterateAll(hat::signature_view Signature, const std::string& Section, std::function<bool(std::byte*)> It);
     std::byte* FindPatternInRange(const std::byte* Start, const std::byte* End, hat::signature_view Signature);
 
     template<typename T>
@@ -23,28 +25,26 @@ namespace SDK::Memory
     inline std::byte* FindStringRef(const T* String) {
         std::byte* StringAddr = FindString(String);
 
-        auto ProcessPattern = [&StringAddr](const std::vector<std::byte*>& StringRefs) -> std::byte* {
-            for (const auto& Found : StringRefs)
-            {
-                if ((std::byte*)CalculateRVA((uintptr_t)Found, 3) == StringAddr)
-                    return Found;
-            }
+        // The encoding of our target LEA address is:
+        //
+        // 48 - REX prefix (indicating 64-bit operand size)
+        // 8D - LEA
+        // ?? - ModR/M byte
+        // ?? ?? ?? ?? - Address
+        //
+        // We will use Is32BitRelativeAddress to check if the ModR/M byte is correct.
 
-            return nullptr;
+        const auto Validate = [&](std::byte* Address) -> bool {
+            if (!Is32BitRelativeAddress(*(uint8_t*)(Address + 2)))
+                return false;
+
+            if ((std::byte*)CalculateRVA((uintptr_t)Address, 3) != StringAddr)
+                return false;
+
+            return true;
             };
 
-        const std::vector<std::vector<std::byte*>> LEAs = {
-            FindAll(hat::compile_signature<"48 8D 05 ? ? ? ?">()),
-            FindAll(hat::compile_signature<"4C 8D 05 ? ? ? ?">())
-        };
-
-        for (const auto& Search : LEAs)
-        {
-            if (const auto Result = ProcessPattern(Search); Result)
-                return Result;
-        }
-
-        return nullptr;
+        return ItterateAll(hat::compile_signature<"48 8D ? ? ? ? ?">(), ".text", Validate);
     }
 
     template<int Alignement = 4, typename T>

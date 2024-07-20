@@ -6,14 +6,24 @@ namespace SDK::Memory
     {
         return ((Addr + Offset + 4) + *(int32_t*)(Addr + Offset));
     }
+    bool Is32BitRelativeAddress(uint8_t ModRM)
+    {
+        // MOD - Bit 6-7
+        // REG - Bit 3-5
+        // R/M - Bit 0-2
+        //
+        // MOD should be 0b00 and R/M should be 0b101.
+        // REG varies depending on the output register
+        // so we can't check it.
 
-    std::vector<std::byte*> FindAll(hat::signature_view Signature) {
-        std::vector<std::byte*> Results = {};
+        return ((ModRM & 0b11000111) == 0b00000101);
+    }
 
+    std::byte* ItterateAll(hat::signature_view Signature, const std::string& Section, std::function<bool(std::byte*)> It) {
         uintptr_t Start = (uintptr_t)hat::process::get_process_module();
-        std::span<std::byte> Data = hat::process::get_module_data(hat::process::module_t(Start));
+        std::span<std::byte> Data = hat::process::get_section_data(hat::process::module_t(Start), Section);
         if (Data.empty())
-            return Results;
+            return nullptr;
 
         const std::byte* DataBegin = Data.data();
         const std::byte* DataEnd = DataBegin + Data.size();
@@ -25,11 +35,13 @@ namespace SDK::Memory
                 break;
 
             std::byte* ResPtr = (std::byte*)&(*Result.get());
-            Results.emplace_back(ResPtr);
+            if (It(ResPtr))
+                return ResPtr;
+
             DataBegin = ResPtr + 1;
         }
 
-        return Results;
+        return nullptr;
     }
     std::byte* FindPatternInRange(const std::byte* Start, const std::byte* End, hat::signature_view Signature)
     {
