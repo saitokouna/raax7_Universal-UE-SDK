@@ -19,9 +19,8 @@ namespace SDK::Memory
         return ((ModRM & 0b11000111) == 0b00000101);
     }
 
-    std::byte* ItterateAll(hat::signature_view Signature, const std::string& Section, std::function<bool(std::byte*)> It) {
-        uintptr_t Start = (uintptr_t)hat::process::get_process_module();
-        std::span<std::byte> Data = hat::process::get_section_data(hat::process::module_t(Start), Section);
+    std::byte* ItterateAll(hat::signature_view Signature, const std::string& Section, const std::function<bool(std::byte*)>& It) {
+        std::span<std::byte> Data = hat::process::get_section_data(hat::process::get_process_module(), Section);
         if (Data.empty())
             return nullptr;
 

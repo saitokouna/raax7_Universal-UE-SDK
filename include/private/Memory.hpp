@@ -12,7 +12,7 @@ namespace SDK::Memory
     uintptr_t CalculateRVA(uintptr_t Addr, uint32_t Offset);
     bool Is32BitRelativeAddress(uint8_t ModRM);
 
-    std::byte* ItterateAll(hat::signature_view Signature, const std::string& Section, std::function<bool(std::byte*)> It);
+    std::byte* ItterateAll(hat::signature_view Signature, const std::string& Section, const std::function<bool(std::byte*)>& It);
     std::byte* FindPatternInRange(const std::byte* Start, const std::byte* End, hat::signature_view Signature);
 
     template<typename T>
@@ -24,8 +24,10 @@ namespace SDK::Memory
     template<typename T>
     inline std::byte* FindStringRef(const T* String) {
         std::byte* StringAddr = FindString(String);
+        if (!StringAddr)
+            return nullptr;
 
-        // The encoding of our target LEA address is:
+        // The encoding of our target LEA is:
         //
         // 48 - REX prefix (indicating 64-bit operand size)
         // 8D - LEA
@@ -34,7 +36,7 @@ namespace SDK::Memory
         //
         // We will use Is32BitRelativeAddress to check if the ModR/M byte is correct.
 
-        const auto Validate = [&](std::byte* Address) -> bool {
+        const auto Validate = [StringAddr](std::byte* Address) -> bool {
             if (!Is32BitRelativeAddress(*(uint8_t*)(Address + 2)))
                 return false;
 
