@@ -46,6 +46,7 @@ namespace SDK::Offsets
 	}
 	namespace FName
 	{
+		inline uintptr_t Constructor = 0;
 		inline uintptr_t AppendString = 0;
 	}
 }

@@ -227,8 +227,10 @@ namespace SDK
 
 	class FName
 	{
+	public:
+		FName(const std::wstring& Str);
+
 	private:
-		FName() = delete;
 		~FName() = delete;
 
 	public:

@@ -104,6 +104,10 @@ namespace OffsetFinder
 
 		const auto& Result = hat::find_pattern(FMemorySignature, ".text");
 		SDK::Offsets::FMemory::Realloc = reinterpret_cast<uintptr_t>(Result.get());
+
+		if (Result.has_result())
+			SDK::Settings::SetupFMemory = true;
+
 		return Result.has_result();
 	}
 	bool FindGObjects()
@@ -118,6 +122,8 @@ namespace OffsetFinder
 		{
 			SDK::Settings::ChunkedGObjects = true;
 			SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 3));
+			
+			SDK::Settings::SetupGObjects = true;
 			return true;
 		}
 
@@ -126,6 +132,36 @@ namespace OffsetFinder
 		{
 			SDK::Settings::ChunkedGObjects = false;
 			SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)FixedGObjects.get(), 3));
+			
+			SDK::Settings::SetupGObjects = true;
+			return true;
+		}
+
+		return false;
+	}
+	bool FindFNameConstructor()
+	{
+		// L"CanvasObject" is only referenced once, and it's in the parameters of an
+		// FName constructor. We can easily find then next CALL to get the address
+		// of the FName constructor.
+		/*
+		48 8D 15 29 CB 04 02	lea     rdx, aCanvasobject ; "CanvasObject"
+		48 8D 0D 0A 28 2C 03    lea     rcx, qword_6210D40
+		E8 75 EA 0A FF          call    FNameConstructor
+		*/
+
+		std::byte* Start = SDK::Memory::FindStringRef(L"CanvasObject");
+		std::byte* End = Start + 0x60;
+
+		if (!Start)
+			return false;
+
+		std::byte* Result = SDK::Memory::FindPatternInRange(Start, End, hat::compile_signature<"E8">());
+		if (Result)
+		{
+			SDK::Offsets::FName::Constructor = SDK::Memory::CalculateRVA((uintptr_t)Result, 1);
+
+			SDK::Settings::SetupFNameConstructor = true;
 			return true;
 		}
 
@@ -133,10 +169,22 @@ namespace OffsetFinder
 	}
 	bool FindAppendString()
 	{
-		std::byte* Address = SDK::Memory::FindStringRef("ForwardShadingQuality_");
-		std::byte* End = Address + 0x60;
+		/*
+		4C 8D 05 65 17 79 02	lea     r8, aForwardshading ; "ForwardShadingQuality_"
+		41 B9 17 00 00 00		mov     r9d, 17h
+		B8 3F 00 00 00			mov     eax, 3Fh ; '?'
+		41 8B D1				mov     edx, r9d
+		66 89 44 24 20			mov     word ptr [rsp+0A0h+var_80], ax
+		E8 AD AF EE FD			call    sub_36C900
+		48 8D 55 17				lea     rdx, [rbp+57h+var_40]
+		48 8D 4D 6F				lea     rcx, [rbp+57h+arg_8]
+		E8 40 DE B7 FF			call    AppendString
+		*/
 
-		if (!Address)
+		std::byte* Start = SDK::Memory::FindStringRef("ForwardShadingQuality_");
+		std::byte* End = Start + 0x60;
+
+		if (!Start)
 			return false;
 
 		const std::vector<std::pair<hat::fixed_signature<10>, int>> Signatures = {
@@ -148,10 +196,12 @@ namespace OffsetFinder
 
 		for (const auto& Sig : Signatures)
 		{
-			std::byte* Result = SDK::Memory::FindPatternInRange(Address, End, Sig.first);
+			std::byte* Result = SDK::Memory::FindPatternInRange(Start, End, Sig.first);
 			if (Result)
 			{
 				SDK::Offsets::FName::AppendString = SDK::Memory::CalculateRVA((uintptr_t)Result, Sig.second);
+
+				SDK::Settings::SetupAppendString = true;
 				return true;
 			}
 		}
@@ -162,6 +212,7 @@ namespace OffsetFinder
 	SDK::SDKStatus SetupMemberOffsets()
 	{
 		// The order of these is important as there is a dependency chain.
+		// Do not change the order.
 
 		UStruct::Children = FindUStructChildrenOffset();
 		if (UStruct::Children == OFFSET_NOT_FOUND)
@@ -185,6 +236,7 @@ namespace OffsetFinder
 		if (UClass::DefaultObject == OFFSET_NOT_FOUND)
 			return SDK::SDK_FAILED_UCLASS_DEFAULTOBJECT;
 
+		SDK::Settings::SetupMemberOffsets = true;
 		return SDK::SDK_SUCCESS;
 	}
 }

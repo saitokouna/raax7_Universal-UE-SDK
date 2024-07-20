@@ -80,4 +80,11 @@ namespace SDK
     public:
         DECLARE_GETTER_SETTER(uint8_t, ByteMask);
     };
+
+    class UFunction : public UObject
+    {
+    private:
+        UFunction() = delete;
+        ~UFunction() = delete;
+    };
 }
