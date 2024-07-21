@@ -1,10 +1,11 @@
 #include <ugsdk/FastSearch.hpp>
-#include <private/Settings.hpp>
 #include <ugsdk/ObjectArray.hpp>
+#include <ugsdk/UnrealTypes.hpp>
+#include <private/Settings.hpp>
 
 namespace SDK
 {
-	bool FastSearch(const std::vector<FSEntry>& SearchList)
+	bool FastSearch(std::vector<FSEntry>& SearchList)
 	{
 		// We require all of these functionalities.
 		if (!Settings::SetupFMemory ||
@@ -25,13 +26,73 @@ namespace SDK
 			}
 		}
 
-		for (int i = 0; i < GObjects->Num(); i++)
+		for (int i = 0; i < GObjects->Num() && SearchList.size(); i++)
 		{
 			UObject* Obj = GObjects->GetByIndex(i);
 			if (!Obj)
 				continue;
 
+			for (auto It = SearchList.begin(); It != SearchList.end();)
+			{
+				bool DontIncrement = false;
 
+				switch (It->Type)
+				{
+				case FS_UOBJECT:
+				{
+					if (Obj->HasTypeFlag((EClassCastFlags)It->Object.TargetClassFlags) && Obj->Name() == It->Object.ObjectName)
+					{
+						*It->Object.OutObject = Obj;
+
+						It = SearchList.erase(It);
+						DontIncrement = true;
+					}
+					break;
+				}
+				case FS_UPROPERTY:
+				{
+					if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || It->Property.ClassName != Obj->Name())
+						break;
+
+					SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
+					PropertyInfo Info = ObjStruct->FindProperty(It->Property.PropertyName);
+					if (!Info.Found)
+						break;
+
+					if (It->Property.OutOffset) *It->Property.OutOffset = Info.Offset;
+					if (It->Property.OutMask) *It->Property.OutMask = Info.ByteMask;
+
+					It = SearchList.erase(It);
+					DontIncrement = true;
+					break;
+				}
+				case FS_UFUNCTION:
+				{
+					if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || It->Function.ClassName != Obj->Name())
+						break;
+
+					SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
+					UFunction* Function = ObjStruct->FindFunction(It->Function.FunctionName);
+					if (!Function)
+						break;
+
+					*It->Function.OutFunction = Function;
+
+					It = SearchList.erase(It);
+					DontIncrement = true;
+					break;
+				}
+
+				default:
+					++It;
+					break;
+				}
+
+				if (!DontIncrement)
+					++It;
+			}
 		}
+
+		return SearchList.size() == 0;
 	}
 }

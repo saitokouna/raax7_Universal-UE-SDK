@@ -1,5 +1,6 @@
 #pragma once
 #include <ugsdk/ObjectArray.hpp>
+#include <ugsdk/UnrealTypes.hpp>
 #include <ugsdk/UnrealObjects.hpp>
 
 namespace SDK
@@ -23,13 +24,14 @@ namespace SDK
 	template<typename UEType>
 	UEType* TUObjectArray::FindObjectFast(const std::string& Name, EClassCastFlags RequiredType)
 	{
+		FName fName = FName(Name);
 		for (int i = 0; i < GObjects->Num(); i++)
 		{
 			UObject* Object = GObjects->GetByIndex(i);
 			if (!Object)
 				continue;
 
-			if (Object->HasTypeFlag(RequiredType) && Object->GetName() == Name)
+			if (Object->HasTypeFlag(RequiredType) && Object->Name() == fName)
 				return static_cast<UEType*>(Object);
 		}
 
@@ -39,13 +41,15 @@ namespace SDK
 	template<typename UEType>
 	UEType* TUObjectArray::FindObjectFastInOuter(const std::string& Name, const std::string& Outer)
 	{
+		FName fName = FName(Name);
+		FName fOuter = FName(Outer);
 		for (int i = 0; i < GObjects->Num(); i++)
 		{
 			UObject* Object = GObjects->GetByIndex(i);
 			if (!Object)
 				continue;
 
-			if (Object->GetName() == Name && Object->Outer()->GetName() == Outer)
+			if (Object->Name() == fName && Object->Outer()->Name() == fOuter)
 				return static_cast<UEType*>(Object);
 		}
 

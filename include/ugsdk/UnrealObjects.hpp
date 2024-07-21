@@ -6,6 +6,17 @@
 
 namespace SDK
 {
+    struct PropertyInfo
+    {
+        bool Found = false;
+        int32_t Flags;
+        int32_t Offset;
+        uint8_t ByteMask;
+    };
+}
+
+namespace SDK
+{
     class UObject
     {
     private:
@@ -17,12 +28,13 @@ namespace SDK
         DECLARE_GETTER_SETTER(int32_t, Flags);
         DECLARE_GETTER_SETTER(int32_t, Index);
         DECLARE_GETTER_SETTER(class UClass*, Class);
-        DECLARE_GETTER_SETTER(class FName*, Name);
+        DECLARE_GETTER_SETTER(class FName, Name);
         DECLARE_GETTER_SETTER(class UObject*, Outer);
 
     public:
         bool HasTypeFlag(EClassCastFlags TypeFlag);
         bool IsA(class UClass* Target);
+        bool IsDefaultObject();
 
         std::string GetName();
         std::string GetFullName();
@@ -48,6 +60,14 @@ namespace SDK
         DECLARE_GETTER_SETTER(class UStruct*, Super);
         DECLARE_GETTER_SETTER(class UField*, Children);
         //DECLARE_GETTER_SETTER(FField*, ChildProperties);
+
+    public:
+        UField* FindMember(const std::string& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+        UField* FindMember(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+        PropertyInfo FindProperty(const std::string& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+        PropertyInfo FindProperty(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+        class UFunction* FindFunction(const std::string& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+        class UFunction* FindFunction(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
     };
 
     class UClass : public UStruct
@@ -61,7 +81,7 @@ namespace SDK
         DECLARE_GETTER_SETTER(class UObject*, DefaultObject);
     };
 
-    class UProperty : public UObject
+    class UProperty : public UField
     {
     private:
         UProperty() = delete;
@@ -78,10 +98,12 @@ namespace SDK
         ~UBoolProperty() = delete;
 
     public:
-        DECLARE_GETTER_SETTER(uint8_t, ByteMask);
+        bool IsNativeBool();
+        uint8_t GetFieldMask();
+        uint8_t GetBitIndex();
     };
 
-    class UFunction : public UObject
+    class UFunction : public UStruct
     {
     private:
         UFunction() = delete;

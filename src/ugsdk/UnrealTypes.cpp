@@ -4,13 +4,13 @@
 
 namespace SDK
 {
-	FName::FName(const std::wstring& Str)
+	FName::FName(const std::string& Str)
 		: ComparisonIdx(0), Number(0)
 	{
-		static void(*Constructor)(const FName*, const wchar_t*, bool) = nullptr;
+		static void(*Constructor)(const FName*, const char*, bool) = nullptr;
 
 		if (!Constructor)
-			Constructor = reinterpret_cast<void(*)(const FName*, const wchar_t*, bool)>(SDK::Offsets::FName::Constructor);
+			Constructor = reinterpret_cast<void(*)(const FName*, const char*, bool)>(SDK::Offsets::FName::Constructor);
 
 		Constructor(const_cast<SDK::FName*>(this), Str.c_str(), true);
 	}

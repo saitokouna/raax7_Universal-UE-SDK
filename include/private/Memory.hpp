@@ -12,7 +12,7 @@ namespace SDK::Memory
     uintptr_t CalculateRVA(uintptr_t Addr, uint32_t Offset);
     bool Is32BitRelativeAddress(uint8_t ModRM);
 
-    std::byte* ItterateAll(hat::signature_view Signature, const std::string& Section, const std::function<bool(std::byte*)>& It);
+    std::byte* IterateAll(hat::signature_view Signature, const std::string& Section, const std::function<bool(std::byte*)>& It);
     std::byte* FindPatternInRange(const std::byte* Start, const std::byte* End, hat::signature_view Signature);
 
     template<typename T>
@@ -36,7 +36,7 @@ namespace SDK::Memory
         //
         // We will use Is32BitRelativeAddress to check if the ModR/M byte is correct.
 
-        const auto Validate = [StringAddr](std::byte* Address) -> bool {
+        auto Validate = [StringAddr](std::byte* Address) -> bool {
             if (!Is32BitRelativeAddress(*(uint8_t*)(Address + 2)))
                 return false;
 
@@ -46,7 +46,11 @@ namespace SDK::Memory
             return true;
             };
 
-        return ItterateAll(hat::compile_signature<"48 8D ? ? ? ? ?">(), ".text", Validate);
+        std::byte* Result = IterateAll(hat::compile_signature<"4C 8D ? ? ? ? ?">(), ".text", Validate);
+        if (!Result)
+            Result = IterateAll(hat::compile_signature<"48 8D ? ? ? ? ?">(), ".text", Validate);
+
+        return Result;
     }
 
     template<int Alignement = 4, typename T>

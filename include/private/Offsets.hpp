@@ -37,7 +37,15 @@ namespace SDK::Offsets
 	}
 	namespace UBoolProperty
 	{
-		inline Offset_t ByteMask = OFFSET_NOT_FOUND;
+		struct UBoolPropertyBase
+		{
+			uint8_t FieldSize;
+			uint8_t ByteOffset;
+			uint8_t ByteMask;
+			uint8_t FieldMask;
+		};
+
+		inline Offset_t Base = OFFSET_NOT_FOUND;
 	}
 
 	namespace FMemory

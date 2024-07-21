@@ -83,6 +83,16 @@ namespace SDK
 
 		template<typename UEType = class UObject>
 		static UEType* FindObjectFastInOuter(const std::string& Name, const std::string& Outer);
+
+		class UClass* FindClass(const std::string& ClassFullName)
+		{
+			return FindObject<class UClass>(ClassFullName, CASTCLASS_UClass);
+		}
+
+		class UClass* FindClassFast(const std::string& ClassName)
+		{
+			return FindObjectFast<class UClass>(ClassName, CASTCLASS_UClass);
+		}
 	};
 
 	inline std::unique_ptr<TUObjectArray> GObjects = nullptr;

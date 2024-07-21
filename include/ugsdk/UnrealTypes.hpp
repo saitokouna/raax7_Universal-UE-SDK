@@ -228,10 +228,12 @@ namespace SDK
 	class FName
 	{
 	public:
-		FName(const std::wstring& Str);
+		explicit FName(const std::string& Str);
+		~FName() = default;
 
-	private:
-		~FName() = delete;
+	public:
+		inline bool operator==(const FName& Other) const { return ComparisonIdx == Other.ComparisonIdx; }
+		inline bool operator!=(const FName& Other) const { return ComparisonIdx != Other.ComparisonIdx; }
 
 	public:
 		uint32_t ComparisonIdx;
