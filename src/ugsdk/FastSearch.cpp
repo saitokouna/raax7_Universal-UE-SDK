@@ -40,7 +40,7 @@ namespace SDK
 				{
 				case FS_UOBJECT:
 				{
-					if (Obj->HasTypeFlag((EClassCastFlags)It->Object.TargetClassFlags) && Obj->Name() == It->Object.ObjectName)
+					if (Obj->HasTypeFlag((EClassCastFlags)It->Object.RequiredType) && Obj->Name() == It->Object.ObjectName)
 					{
 						*It->Object.OutObject = Obj;
 

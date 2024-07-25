@@ -2,7 +2,6 @@
 #include <ugsdk/Macros.hpp>
 #include <cstdint>
 
-/** @brief This namespace is managed by the library and not meant for direct use. */
 namespace SDK::Offsets
 {
 	using Offset_t = uint16_t;
@@ -34,6 +33,7 @@ namespace SDK::Offsets
 	namespace UProperty
 	{
 		inline Offset_t Offset = OFFSET_NOT_FOUND;
+		inline Offset_t ElementSize = OFFSET_NOT_FOUND;
 	}
 	namespace UBoolProperty
 	{

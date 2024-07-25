@@ -89,6 +89,7 @@ namespace SDK
 
     public:
         DECLARE_GETTER_SETTER(int32_t, Offset);
+        DECLARE_GETTER_SETTER(int32_t, ElementSize);
     };
 
     class UBoolProperty : public UProperty

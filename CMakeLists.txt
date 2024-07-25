@@ -20,6 +20,10 @@ set(UGSDK_SRC
 
 add_library(UGSDK STATIC ${UGSDK_SRC})
 
+target_include_directories(UGSDK PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 target_include_directories(UGSDK PUBLIC
     dependencies/libhat/include
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>

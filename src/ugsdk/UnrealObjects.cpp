@@ -135,6 +135,7 @@ namespace SDK
 	DEFINE_GETTER_SETTER(UClass, UObject*, DefaultObject, SDK::Offsets::UClass::DefaultObject);
 
 	DEFINE_GETTER_SETTER(UProperty, int32_t, Offset, SDK::Offsets::UProperty::Offset);
+	DEFINE_GETTER_SETTER(UProperty, int32_t, ElementSize, SDK::Offsets::UProperty::ElementSize);
 
 	bool UBoolProperty::IsNativeBool()
 	{

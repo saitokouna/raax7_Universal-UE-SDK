@@ -14,52 +14,64 @@
 // Someone has found the most optimal way to find something, why should I limit my library
 // just to avoid copying them?
 
+#define GET_OFFSET(Function, Variable, ErrorCode) \
+    Variable = Function();                        \
+    if (Variable == OFFSET_NOT_FOUND)             \
+        return ErrorCode;
+
 using namespace SDK::Offsets;
 
-SDK::UObject* PlayerController = nullptr;
-SDK::UObject* Controller = nullptr;
+namespace OffsetFinder
+{
+	SDK::UObject* PlayerController = nullptr;
+	SDK::UObject* Controller = nullptr;
 
-SDK::UObject* Vector = nullptr;
-SDK::UObject* Vector4 = nullptr;
-SDK::UObject* Vector2D = nullptr;
-SDK::UObject* Guid = nullptr;
+	SDK::UObject* Vector = nullptr;
+	SDK::UObject* Vector4 = nullptr;
+	SDK::UObject* Vector2D = nullptr;
+	SDK::UStruct* Guid = nullptr;
 
-SDK::UObject* KismetSystemLibrary = nullptr;
-SDK::UObject* KismetStringLibrary = nullptr;
+	SDK::UObject* KismetSystemLibrary = nullptr;
+	SDK::UObject* KismetStringLibrary = nullptr;
 
-SDK::UObject* Struct = nullptr;
-SDK::UObject* Field = nullptr;
-SDK::UObject* Class = nullptr;
+	SDK::UObject* Struct = nullptr;
+	SDK::UObject* Field = nullptr;
+	SDK::UObject* Class = nullptr;
 
-SDK::UObject* Actor = nullptr;
-SDK::UObject* Object = nullptr;
+	SDK::UObject* Actor = nullptr;
+	SDK::UObject* Object = nullptr;
 
-SDK::UObject* Default__Object = nullptr;
-SDK::UObject* Default__Field = nullptr;
+	SDK::UObject* Default__Object = nullptr;
+	SDK::UObject* Default__Field = nullptr;
+
+	SDK::UStruct* Color = nullptr;
+
+	SDK::UClass* Engine = nullptr;
+}
 
 namespace OffsetFinder
 {
 	int32_t FindUStructChildrenOffset()
 	{
-		std::vector<std::pair<void*, void*>> Infos;
-
-		Infos.push_back({ PlayerController, SDK::GObjects->FindObjectFastInOuter("WasInputKeyJustReleased", "PlayerController") });
-		Infos.push_back({ Controller, SDK::GObjects->FindObjectFastInOuter("UnPossess", "Controller") });
+		std::vector<std::pair<void*, void*>> Infos = {
+			{ PlayerController, SDK::GObjects->FindObjectFastInOuter("WasInputKeyJustReleased", "PlayerController") },
+			{ Controller, SDK::GObjects->FindObjectFastInOuter("UnPossess", "Controller") }
+		};
 
 		if (SDK::Memory::FindOffset(Infos) == OFFSET_NOT_FOUND)
 		{
 			Infos.clear();
-
-			Infos.push_back({ Vector, SDK::GObjects->FindObjectFastInOuter("X", "Vector") });
-			Infos.push_back({ Vector4, SDK::GObjects->FindObjectFastInOuter("X", "Vector4") });
-			Infos.push_back({ Vector2D, SDK::GObjects->FindObjectFastInOuter("X", "Vector2D") });
-			Infos.push_back({ Guid, SDK::GObjects->FindObjectFastInOuter("A","Guid") });
+			Infos = {
+				{ Vector, SDK::GObjects->FindObjectFastInOuter("X", "Vector") },
+				{ Vector4, SDK::GObjects->FindObjectFastInOuter("X", "Vector4") },
+				{ Vector2D, SDK::GObjects->FindObjectFastInOuter("X", "Vector2D") },
+				{ Guid, SDK::GObjects->FindObjectFastInOuter("A","Guid") }
+			};
 
 			return SDK::Memory::FindOffset(Infos);
 		}
 
 		SDK::Settings::UsesFProperty = true;
-
 		return SDK::Memory::FindOffset(Infos);
 	}
 	int32_t FindUFieldNextOffset()
@@ -67,16 +79,16 @@ namespace OffsetFinder
 		uint8_t* KismetSystemLibraryChild = reinterpret_cast<uint8_t*>(((SDK::UStruct*)(KismetSystemLibrary))->Children());
 		uint8_t* KismetStringLibraryChild = reinterpret_cast<uint8_t*>(((SDK::UStruct*)(KismetStringLibrary))->Children());
 
-		return SDK::Memory::GetValidPointerOffset(KismetSystemLibraryChild, KismetStringLibraryChild, SDK::Offsets::UObject::Outer + 0x08, 0x48);
+		return SDK::Memory::GetValidPointerOffset(KismetSystemLibraryChild, KismetStringLibraryChild, SDK::Offsets::UObject::Outer + 0x8, 0x48);
 	}
 	int32_t FindUStructSuperOffset()
 	{
-		std::vector<std::pair<void*, void*>> Infos;
+		std::vector<std::pair<void*, void*>> Infos = {
+			{ Struct, Field },
+			{ Class, Struct }
+		};
 
-		Infos.push_back({ Struct, Field });
-		Infos.push_back({ Class, Struct });
-
-		// Thanks to the ue4 dev who decided UStruct should be spelled Ustruct
+		// In some UE4 versions, this is called Struct is not capitalized.
 		if (Infos[0].first == nullptr)
 			Infos[0].first = Infos[1].second = SDK::GObjects->FindObjectFast("struct");
 
@@ -84,44 +96,51 @@ namespace OffsetFinder
 	}
 	int32_t FindUClassCastFlagsOffset()
 	{
-		std::vector<std::pair<void*, SDK::EClassCastFlags>> Infos;
-
-		Infos.push_back({ Actor, SDK::CASTCLASS_AActor });
-		Infos.push_back({ Class, SDK::CASTCLASS_UField | SDK::CASTCLASS_UStruct | SDK::CASTCLASS_UClass });
+		std::vector<std::pair<void*, SDK::EClassCastFlags>> Infos = {
+			{ Actor, SDK::CASTCLASS_AActor },
+			{ Class, SDK::CASTCLASS_UField | SDK::CASTCLASS_UStruct | SDK::CASTCLASS_UClass }
+		};
 
 		return SDK::Memory::FindOffset(Infos);
 	}
 	int32_t FindUClassDefaultObjectOffset()
 	{
-		std::vector<std::pair<void*, void*>> Infos;
-
-		Infos.push_back({ Object, Default__Object });
-		Infos.push_back({ Field, Default__Field });
+		std::vector<std::pair<void*, void*>> Infos = {
+			{ Object, Default__Object },
+			{ Field, Default__Field }
+		};
 
 		return SDK::Memory::FindOffset(Infos);
 	}
 	int32_t FindUPropertyOffsetOffset()
 	{
-		std::vector<std::pair<void*, int32_t>> Infos;
+		std::vector<std::pair<void*, int32_t>> Infos = {
+			{ Color->FindMember("B"), 0x00 },
+			{ Color->FindMember("G"), 0x01 },
+			{ Color->FindMember("R"), 0x02 }
+		};
 
-		SDK::UStruct* Color = SDK::GObjects->FindObjectFast<SDK::UStruct>("Color", SDK::CASTCLASS_UStruct);
-
-		Infos.push_back({ Color->FindMember("B"), 0x00 });
-		Infos.push_back({ Color->FindMember("G"), 0x01 });
-		Infos.push_back({ Color->FindMember("R"), 0x02 });
+		return SDK::Memory::FindOffset(Infos);
+	}
+	int32_t FindUPropertyElementSizeOffset()
+	{
+		std::vector<std::pair<void*, int32_t>> Infos = {
+			{ Guid->FindMember("A"), 0x04 },
+			{ Guid->FindMember("B"), 0x04 },
+			{ Guid->FindMember("C"), 0x04 }
+		};
 
 		return SDK::Memory::FindOffset(Infos);
 	}
 	int32_t FindUBoolPropertyBaseOffset()
 	{
-		std::vector<std::pair<void*, uint8_t>> Infos;
+		std::vector<std::pair<void*, uint8_t>> Infos = {
+			{ Engine->FindMember("bIsOverridingSelectedColor"), 0xFF },
+			{ Engine->FindMember("bEnableOnScreenDebugMessagesDisplay"), 0b00000010 },
+			{ SDK::GObjects->FindClassFast("PlayerController")->FindMember("bAutoManageActiveCameraTarget"), 0xFF }
+		};
 
-		SDK::UClass* Engine = SDK::GObjects->FindClassFast("Engine");
-		Infos.push_back({ Engine->FindMember("bIsOverridingSelectedColor"), 0xFF });
-		Infos.push_back({ Engine->FindMember("bEnableOnScreenDebugMessagesDisplay"), 0b00000010 });
-		Infos.push_back({ SDK::GObjects->FindClassFast("PlayerController")->FindMember("bAutoManageActiveCameraTarget"), 0xFF });
-
-		return (SDK::Memory::FindOffset<1>(Infos, SDK::Offsets::UProperty::Offset) - 0x3);
+		return SDK::Memory::FindOffset<1>(Infos, SDK::Offsets::UProperty::Offset) - 0x3;
 	}
 }
 
@@ -239,52 +258,41 @@ namespace OffsetFinder
 
 	SDK::SDKStatus SetupMemberOffsets()
 	{
-		// The order of these is important as there is a dependency chain.
-		// Do not change the order.
-
 		std::vector<SDK::FSEntry> Search = {
-			{ SDK::FSUObject("PlayerController", SDK::CASTCLASS_None, &PlayerController) },
-			{ SDK::FSUObject("Controller", SDK::CASTCLASS_None, &Controller) },
+			{ SDK::FSUObject("PlayerController", &PlayerController) },
+			{ SDK::FSUObject("Controller", &Controller) },
 
-			{ SDK::FSUObject("Vector", SDK::CASTCLASS_None, &Vector) },
-			{ SDK::FSUObject("Vector4", SDK::CASTCLASS_None, &Vector4) },
-			{ SDK::FSUObject("Vector2D", SDK::CASTCLASS_None, &Vector2D) },
-			{ SDK::FSUObject("Guid", SDK::CASTCLASS_None, &Guid) },
+			{ SDK::FSUObject("Vector", &Vector) },
+			{ SDK::FSUObject("Vector4", &Vector4) },
+			{ SDK::FSUObject("Vector2D", &Vector2D) },
+			{ SDK::FSUObject("Guid", SDK::CASTCLASS_UStruct, &Guid) },
 
-			{ SDK::FSUObject("KismetSystemLibrary", SDK::CASTCLASS_None, &KismetSystemLibrary) },
-			{ SDK::FSUObject("KismetStringLibrary", SDK::CASTCLASS_None, &KismetStringLibrary) },
+			{ SDK::FSUObject("KismetSystemLibrary", &KismetSystemLibrary) },
+			{ SDK::FSUObject("KismetStringLibrary", &KismetStringLibrary) },
 
-			{ SDK::FSUObject("Struct", SDK::CASTCLASS_None, &Struct) },
-			{ SDK::FSUObject("Field", SDK::CASTCLASS_None, &Field) },
-			{ SDK::FSUObject("Class", SDK::CASTCLASS_None, &Class) },
+			{ SDK::FSUObject("Struct", &Struct) },
+			{ SDK::FSUObject("Field", &Field) },
+			{ SDK::FSUObject("Class", &Class) },
 
-			{ SDK::FSUObject("Actor", SDK::CASTCLASS_None, &Actor) },
-			{ SDK::FSUObject("Object", SDK::CASTCLASS_None, &Object) },
+			{ SDK::FSUObject("Actor", &Actor) },
+			{ SDK::FSUObject("Object", &Object) },
 
-			{ SDK::FSUObject("Default__Object", SDK::CASTCLASS_None, &Default__Object) },
-			{ SDK::FSUObject("Default__Field", SDK::CASTCLASS_None, &Default__Field) },
+			{ SDK::FSUObject("Default__Object", &Default__Object) },
+			{ SDK::FSUObject("Default__Field", &Default__Field) },
+
+			{ SDK::FSUObject("Color", SDK::CASTCLASS_UStruct, &Color) },
+			{ SDK::FSUObject("Engine", SDK::CASTCLASS_UClass, &Engine) }
 		};
-
 		if (!SDK::FastSearch(Search))
 			return SDK::SDK_FAILED_FASTSEARCH;
 
+		// The order of the functions below is very important as there is a dependency chain.
+		// Do not change the order.
 
-
-		UStruct::Children = FindUStructChildrenOffset();
-		if (UStruct::Children == OFFSET_NOT_FOUND)
-			return SDK::SDK_FAILED_UCLASS_CHILDREN;
-
-		UField::Next = FindUFieldNextOffset();
-		if (UField::Next == OFFSET_NOT_FOUND)
-			return SDK::SDK_FAILED_UFIELD_NEXT;
-
-		UStruct::Super = FindUStructSuperOffset();
-		if (UStruct::Super == OFFSET_NOT_FOUND)
-			return SDK::SDK_FAILED_USRTUCT_SUPER;
-
-		UClass::CastFlags = FindUClassCastFlagsOffset();
-		if (UClass::CastFlags == OFFSET_NOT_FOUND)
-			return SDK::SDK_FAILED_UCLASS_CASTFLAGS;
+		GET_OFFSET(FindUStructChildrenOffset, UStruct::Children, SDK::SDK_FAILED_UCLASS_CHILDREN);
+		GET_OFFSET(FindUFieldNextOffset, UField::Next, SDK::SDK_FAILED_UFIELD_NEXT);
+		GET_OFFSET(FindUStructSuperOffset, UStruct::Super, SDK::SDK_FAILED_USRTUCT_SUPER);
+		GET_OFFSET(FindUClassCastFlagsOffset, UClass::CastFlags, SDK::SDK_FAILED_UCLASS_CASTFLAGS);
 
 		if (SDK::Settings::UsesFProperty)
 		{
@@ -292,20 +300,12 @@ namespace OffsetFinder
 		}
 		else
 		{
-			UProperty::Offset = FindUPropertyOffsetOffset();
-			if (UProperty::Offset == OFFSET_NOT_FOUND)
-				return SDK::SDK_FAILED_UPROPERTY_OFFSET;
-
-			UBoolProperty::Base = FindUBoolPropertyBaseOffset();
-			if (UBoolProperty::Base == OFFSET_NOT_FOUND)
-				return SDK::SDK_FAILED_UBOOLPROPERTY_BASE;
+			GET_OFFSET(FindUPropertyOffsetOffset, UProperty::Offset, SDK::SDK_FAILED_UPROPERTY_OFFSET);
+			GET_OFFSET(FindUPropertyElementSizeOffset, UProperty::ElementSize, SDK::SDK_FAILED_UPROPERTY_ELEMENTSIZE);
+			GET_OFFSET(FindUBoolPropertyBaseOffset, UBoolProperty::Base, SDK::SDK_FAILED_UBOOLPROPERTY_BASE);
 		}
 
-		// ...
-
-		UClass::DefaultObject = FindUClassDefaultObjectOffset();
-		if (UClass::DefaultObject == OFFSET_NOT_FOUND)
-			return SDK::SDK_FAILED_UCLASS_DEFAULTOBJECT;
+		GET_OFFSET(FindUClassDefaultObjectOffset, UClass::DefaultObject, SDK::SDK_FAILED_UCLASS_DEFAULTOBJECT);
 
 		SDK::Settings::SetupMemberOffsets = true;
 		return SDK::SDK_SUCCESS;

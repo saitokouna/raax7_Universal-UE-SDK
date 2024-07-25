@@ -15,11 +15,15 @@ namespace SDK
 	struct FSUObject
 	{
 		FName ObjectName;
-		uint64_t TargetClassFlags;
+		uint64_t RequiredType;
 		UObject** OutObject;
 
-		explicit FSUObject(const std::string& ObjectName, uint64_t TargetClassFlags, UObject** OutObject)
-			: ObjectName(FName(ObjectName)), TargetClassFlags(TargetClassFlags), OutObject(OutObject) {}
+		template<typename T>
+		explicit FSUObject(const std::string& ObjectName, uint64_t RequiredType, T** OutObject)
+			: ObjectName(FName(ObjectName)), RequiredType(RequiredType), OutObject(reinterpret_cast<SDK::UObject**>(OutObject)) {}
+		template<typename T>
+		explicit FSUObject(const std::string& ObjectName, T** OutObject)
+			: ObjectName(FName(ObjectName)), RequiredType(CASTCLASS_None), OutObject(reinterpret_cast<SDK::UObject**>(OutObject)) {}
 	};
 	struct FSUProperty
 	{
@@ -35,7 +39,6 @@ namespace SDK
 	{
 		FName ClassName;
 		FName FunctionName;
-		int32_t TargetFlags;
 		UFunction** OutFunction;
 
 		explicit FSUFunction(const std::string& ClassName, const std::string& FunctionName, UFunction** OutFunction)
