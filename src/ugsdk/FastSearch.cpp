@@ -51,7 +51,7 @@ namespace SDK
 				}
 				case FS_UPROPERTY:
 				{
-					if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || It->Property.ClassName != Obj->Name())
+					if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || Obj->Name() != It->Property.ClassName)
 						break;
 
 					SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
@@ -68,7 +68,7 @@ namespace SDK
 				}
 				case FS_UFUNCTION:
 				{
-					if (!Obj->HasTypeFlag(CASTCLASS_UFunction) || It->Function.ClassName != Obj->Name())
+					if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || Obj->Name() != It->Function.ClassName)
 						break;
 
 					SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
