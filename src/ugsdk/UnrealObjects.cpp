@@ -6,7 +6,6 @@
 
 namespace SDK
 {
-	DEFINE_GETTER_SETTER(UObject, void**, VFT, SDK::Offsets::UObject::VFT);
 	DEFINE_GETTER_SETTER(UObject, int32_t, Flags, SDK::Offsets::UObject::Flags);
 	DEFINE_GETTER_SETTER(UObject, int32_t, Index, SDK::Offsets::UObject::Index);
 	DEFINE_GETTER_SETTER(UObject, UClass*, Class, SDK::Offsets::UObject::Class);
@@ -56,6 +55,12 @@ namespace SDK
 		}
 
 		return "None";
+	}
+	void UObject::ProcessEvent(UFunction* Function, void* Parms)
+	{
+		using ProcessEvent_t = void(*)(UObject*, UFunction*, void*);
+		ProcessEvent_t PE = reinterpret_cast<ProcessEvent_t>(this->VFT[0x40]);
+		PE(this, Function, Parms);
 	}
 
 	DEFINE_GETTER_SETTER(UField, UField*, Next, SDK::Offsets::UField::Next);

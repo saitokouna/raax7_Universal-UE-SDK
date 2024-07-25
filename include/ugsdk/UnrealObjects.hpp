@@ -25,7 +25,7 @@ namespace SDK
         ~UObject() = delete;
 
     public:
-        DECLARE_GETTER_SETTER(void**, VFT);
+        void** VFT;
         DECLARE_GETTER_SETTER(int32_t, Flags);
         DECLARE_GETTER_SETTER(int32_t, Index);
         DECLARE_GETTER_SETTER(class UClass*, Class);
@@ -39,6 +39,8 @@ namespace SDK
 
         std::string GetName();
         std::string GetFullName();
+
+        void ProcessEvent(class UFunction* Function, void* Parms);
 
         template<typename ReturnType, typename... Args>
         ReturnType Call(const class UFunction* Function, Args&&... args);

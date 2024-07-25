@@ -8,7 +8,7 @@ namespace SDK::Offsets
 
 	namespace UObject
 	{
-		inline Offset_t VFT = 0;
+		constexpr Offset_t VFT = 0; // This will always be 0.
 		inline Offset_t Flags = 8;
 		inline Offset_t Index = 0xC;
 		inline Offset_t Class = 0x10;
