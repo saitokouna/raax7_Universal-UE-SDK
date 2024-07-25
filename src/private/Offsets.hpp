@@ -34,6 +34,7 @@ namespace SDK::Offsets
 	{
 		inline Offset_t Offset = OFFSET_NOT_FOUND;
 		inline Offset_t ElementSize = OFFSET_NOT_FOUND;
+		inline Offset_t PropertyFlags = OFFSET_NOT_FOUND;
 	}
 	namespace UBoolProperty
 	{
@@ -46,6 +47,12 @@ namespace SDK::Offsets
 		};
 
 		inline Offset_t Base = OFFSET_NOT_FOUND;
+	}
+	namespace UFunction
+	{
+		inline Offset_t NumParms = OFFSET_NOT_FOUND;
+		inline Offset_t ParmsSize = OFFSET_NOT_FOUND;
+		inline Offset_t ReturnValueOffset = OFFSET_NOT_FOUND;
 	}
 
 	namespace FMemory

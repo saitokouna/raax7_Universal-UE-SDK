@@ -3,6 +3,7 @@
 #include <ugsdk/UnrealEnums.hpp>
 #include <memory>
 #include <string>
+#include <stdexcept>
 
 namespace SDK
 {
@@ -38,6 +39,9 @@ namespace SDK
 
         std::string GetName();
         std::string GetFullName();
+
+        template<typename ReturnType, typename... Args>
+        ReturnType Call(const class UFunction* Function, Args&&... args);
     };
 
     class UField : public UObject
@@ -88,8 +92,12 @@ namespace SDK
         ~UProperty() = delete;
 
     public:
+        bool HasPropertyFlag(EPropertyFlags PropertyFlag);
+
+    public:
         DECLARE_GETTER_SETTER(int32_t, Offset);
         DECLARE_GETTER_SETTER(int32_t, ElementSize);
+        DECLARE_GETTER_SETTER(EPropertyFlags, PropertyFlags);
     };
 
     class UBoolProperty : public UProperty
@@ -109,5 +117,10 @@ namespace SDK
     private:
         UFunction() = delete;
         ~UFunction() = delete;
+
+    public:
+        DECLARE_GETTER_SETTER(uint8_t, NumParms);
+        DECLARE_GETTER_SETTER(uint16_t, ParmsSize);
+        DECLARE_GETTER_SETTER(uint16_t, ReturnValueOffset);
     };
 }

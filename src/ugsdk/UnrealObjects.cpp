@@ -134,8 +134,13 @@ namespace SDK
 	DEFINE_GETTER_SETTER(UClass, EClassCastFlags, CastFlags, SDK::Offsets::UClass::CastFlags);
 	DEFINE_GETTER_SETTER(UClass, UObject*, DefaultObject, SDK::Offsets::UClass::DefaultObject);
 
+	bool UProperty::HasPropertyFlag(EPropertyFlags PropertyFlag)
+	{
+		return PropertyFlag != CPF_None ? PropertyFlags() & PropertyFlag : true;
+	}
 	DEFINE_GETTER_SETTER(UProperty, int32_t, Offset, SDK::Offsets::UProperty::Offset);
 	DEFINE_GETTER_SETTER(UProperty, int32_t, ElementSize, SDK::Offsets::UProperty::ElementSize);
+	DEFINE_GETTER_SETTER(UProperty, EPropertyFlags, PropertyFlags, SDK::Offsets::UProperty::PropertyFlags);
 
 	bool UBoolProperty::IsNativeBool()
 	{
@@ -163,4 +168,8 @@ namespace SDK
 
 		return 0xFF;
 	}
+
+	DEFINE_GETTER_SETTER(UFunction, uint8_t, NumParms, SDK::Offsets::UFunction::NumParms);
+	DEFINE_GETTER_SETTER(UFunction, uint16_t, ParmsSize, SDK::Offsets::UFunction::ParmsSize);
+	DEFINE_GETTER_SETTER(UFunction, uint16_t, ReturnValueOffset, SDK::Offsets::UFunction::ReturnValueOffset);
 }
