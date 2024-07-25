@@ -15,12 +15,12 @@ namespace SDK
 	struct FSUObject
 	{
 		FName ObjectName;
-		uint64_t RequiredType;
+		EClassCastFlags RequiredType;
 		UObject** OutObject;
 
 		template<typename T>
 		explicit FSUObject(const std::string& ObjectName, uint64_t RequiredType, T** OutObject)
-			: ObjectName(FName(ObjectName)), RequiredType(RequiredType), OutObject(reinterpret_cast<SDK::UObject**>(OutObject)) {}
+			: ObjectName(FName(ObjectName)), RequiredType(reinterpret_cast<EClassCastFlags>(RequiredType)), OutObject(reinterpret_cast<SDK::UObject**>(OutObject)) {}
 		template<typename T>
 		explicit FSUObject(const std::string& ObjectName, T** OutObject)
 			: ObjectName(FName(ObjectName)), RequiredType(CASTCLASS_None), OutObject(reinterpret_cast<SDK::UObject**>(OutObject)) {}

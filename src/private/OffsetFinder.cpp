@@ -265,7 +265,7 @@ namespace OffsetFinder
 			{ SDK::FSUObject("Vector", &Vector) },
 			{ SDK::FSUObject("Vector4", &Vector4) },
 			{ SDK::FSUObject("Vector2D", &Vector2D) },
-			{ SDK::FSUObject("Guid", SDK::CASTCLASS_UStruct, &Guid) },
+			{ SDK::FSUObject("Guid", /*SDK::CASTCLASS_UStruct,*/ &Guid) },
 
 			{ SDK::FSUObject("KismetSystemLibrary", &KismetSystemLibrary) },
 			{ SDK::FSUObject("KismetStringLibrary", &KismetStringLibrary) },
@@ -280,8 +280,8 @@ namespace OffsetFinder
 			{ SDK::FSUObject("Default__Object", &Default__Object) },
 			{ SDK::FSUObject("Default__Field", &Default__Field) },
 
-			{ SDK::FSUObject("Color", SDK::CASTCLASS_UStruct, &Color) },
-			{ SDK::FSUObject("Engine", SDK::CASTCLASS_UClass, &Engine) }
+			{ SDK::FSUObject("Color", /*SDK::CASTCLASS_UStruct,*/ &Color) },
+			{ SDK::FSUObject("Engine", /*SDK::CASTCLASS_UClass,*/ &Engine) }
 		};
 		if (!SDK::FastSearch(Search))
 			return SDK::SDK_FAILED_FASTSEARCH;

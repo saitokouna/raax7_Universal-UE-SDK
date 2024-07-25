@@ -26,7 +26,7 @@ namespace SDK
 			}
 		}
 
-		for (int i = 0; i < GObjects->Num() && SearchList.size(); i++)
+		for (int i = 0; (i < GObjects->Num()) && SearchList.size(); i++)
 		{
 			UObject* Obj = GObjects->GetByIndex(i);
 			if (!Obj)
@@ -40,7 +40,7 @@ namespace SDK
 				{
 				case FS_UOBJECT:
 				{
-					if (Obj->HasTypeFlag((EClassCastFlags)It->Object.RequiredType) && Obj->Name() == It->Object.ObjectName)
+					if (Obj->HasTypeFlag(It->Object.RequiredType) && Obj->Name() == It->Object.ObjectName)
 					{
 						*It->Object.OutObject = Obj;
 
@@ -68,7 +68,7 @@ namespace SDK
 				}
 				case FS_UFUNCTION:
 				{
-					if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || It->Function.ClassName != Obj->Name())
+					if (!Obj->HasTypeFlag(CASTCLASS_UFunction) || It->Function.ClassName != Obj->Name())
 						break;
 
 					SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
