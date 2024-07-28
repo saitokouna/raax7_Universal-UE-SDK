@@ -154,10 +154,14 @@ namespace SDK
         ~UFunction() = delete;
 
     public:
+        using FNativeFuncPtr = void (*)(void* Context, void* TheStack, void* Result);
+
+    public:
         DECLARE_GETTER_SETTER(EFunctionFlags, FunctionFlags);
         DECLARE_GETTER_SETTER(uint8_t, NumParms);
         DECLARE_GETTER_SETTER(uint16_t, ParmsSize);
         DECLARE_GETTER_SETTER(uint16_t, ReturnValueOffset);
+        DECLARE_GETTER_SETTER(FNativeFuncPtr, Func);
     };
 }
 

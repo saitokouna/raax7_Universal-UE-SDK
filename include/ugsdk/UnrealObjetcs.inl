@@ -94,7 +94,7 @@ namespace SDK
     {
         ParmsSize = Function->ParmsSize();
         ReturnValueOffset = Function->ReturnValueOffset();
-        HasReturnValue = (ReturnValueOffset != UINT16_MAX);
+        HasReturnValue = ReturnValueOffset != UINT16_MAX;
 
         int ArgIndex = 0;
         for (SDK::UField* Child = Function->Children(); Child; Child = Child->Next()) {

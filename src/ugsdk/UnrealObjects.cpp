@@ -183,4 +183,5 @@ namespace SDK
     DEFINE_GETTER_SETTER(UFunction, uint8_t, NumParms, SDK::Offsets::UFunction::NumParms);
     DEFINE_GETTER_SETTER(UFunction, uint16_t, ParmsSize, SDK::Offsets::UFunction::ParmsSize);
     DEFINE_GETTER_SETTER(UFunction, uint16_t, ReturnValueOffset, SDK::Offsets::UFunction::ReturnValueOffset);
+    DEFINE_GETTER_SETTER(UFunction, FNativeFuncPtr, Func, SDK::Offsets::UFunction::Func);
 }

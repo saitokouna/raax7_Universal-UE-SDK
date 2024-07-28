@@ -21,7 +21,8 @@ namespace SDK::Memory
 
     bool IsInProcessRange(uintptr_t Addr)
     {
-        // NtCurrentPeb()+0x10 = ImageBaseAddress.
+        // NtCurrentPeb() + 0x10 = ImageBaseAddress.
+
         PIMAGE_DOS_HEADER DosHeader = *(PIMAGE_DOS_HEADER*)(__readgsqword(0x60) + 0x10);
         PIMAGE_NT_HEADERS NtHeaders = (PIMAGE_NT_HEADERS)((uintptr_t)DosHeader + DosHeader->e_lfanew);
 

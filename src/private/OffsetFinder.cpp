@@ -1,4 +1,5 @@
 #include <SDKStatus.hpp>
+#include <Windows.h>
 #include <format>
 #include <libhat.hpp>
 #include <memory>
@@ -9,7 +10,6 @@
 #include <ugsdk/FastSearch.hpp>
 #include <ugsdk/ObjectArray.hpp>
 #include <ugsdk/UnrealObjects.hpp>
-#include <Windows.h>
 
 // Most of the offset finding is copied 1:1 from https://github.com/Encryqed/Dumper-7, so credits to them.
 //
@@ -185,19 +185,19 @@ namespace OffsetFinder
 
     int32_t Find_UFunction_FunctionFlags()
     {
-        std::vector<std::pair<void*, SDK::EFunctionFlags>> Infos = {
+        std::vector<std::pair<void*, SDK::EFunctionFlags>> ValuePair = {
             { WasInputKeyJustPressed, SDK::FUNC_Final | SDK::FUNC_Native | SDK::FUNC_Public | SDK::FUNC_BlueprintCallable | SDK::FUNC_BlueprintPure | SDK::FUNC_Const },
             { ToggleSpeaking, SDK::FUNC_Exec | SDK::FUNC_Native | SDK::FUNC_Public },
             { SwitchLevel, SDK::FUNC_Exec | SDK::FUNC_Native | SDK::FUNC_Public }
         };
 
-        int32_t Ret = SDK::Memory::FindOffset(Infos);
+        int32_t Ret = SDK::Memory::FindOffset(ValuePair);
 
         if (Ret == OFFSET_NOT_FOUND)
-            for (auto& [_, Flags] : Infos)
+            for (auto& [_, Flags] : ValuePair)
                 Flags = Flags | SDK::FUNC_RequiredAPI;
 
-        return SDK::Memory::FindOffset(Infos);
+        return SDK::Memory::FindOffset(ValuePair);
     }
     int32_t Find_UFunction_NumParms()
     {
@@ -238,6 +238,16 @@ namespace OffsetFinder
         };
 
         return SDK::Memory::FindOffset<1>(ValuePair);
+    }
+    int32_t Find_UFunction_Func()
+    {
+        for (int i = 0x40; i < 0x140; i += 8) {
+            if (SDK::Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>(WasInputKeyJustPressed + i)) && SDK::Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>(ToggleSpeaking + i)) && SDK::Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>(SwitchLevel + i))) {
+                return i;
+            }
+        }
+
+        return OFFSET_NOT_FOUND;
     }
 }
 
@@ -422,6 +432,7 @@ namespace OffsetFinder
         GET_OFFSET(Find_UFunction_NumParms, UFunction::NumParms, SDK::SDK_FAILED_UFUNCTION_NUMPARMS);
         GET_OFFSET(Find_UFunction_ParmsSize, UFunction::ParmsSize, SDK::SDK_FAILED_UFUNCTION_PARMSSIZE);
         GET_OFFSET(Find_UFunction_ReturnValueOffset, UFunction::ReturnValueOffset, SDK::SDK_FAILED_UFUNCTION_RETURNVALUEOFFSET);
+        GET_OFFSET(Find_UFunction_Func, UFunction::FuncOffset, SDK::SDK_FAILED_UFUNCTION_FUNCOFFSET);
 
         if (SDK::Settings::UsesFProperty) {
             throw std::runtime_error("FProperties are not supported yet!");
