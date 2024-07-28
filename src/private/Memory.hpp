@@ -1,9 +1,9 @@
 #pragma once
-#include <ugsdk/Macros.hpp>
-#include <libhat.hpp>
 #include <Windows.h>
-#include <vector>
 #include <functional>
+#include <libhat.hpp>
+#include <ugsdk/Macros.hpp>
+#include <vector>
 
 // Credit to https://github.com/Encryqed/Dumper-7 for the FindOffset function.
 
@@ -12,17 +12,23 @@ namespace SDK::Memory
     uintptr_t CalculateRVA(uintptr_t Addr, uint32_t Offset);
     bool Is32BitRelativeAddress(uint8_t ModRM);
 
+    bool IsInProcessRange(uintptr_t Addr);
+
     std::byte* IterateAll(hat::signature_view Signature, const std::string& Section, const std::function<bool(std::byte*)>& It);
     std::byte* FindPatternInRange(const std::byte* Start, const std::byte* End, hat::signature_view Signature);
 
-    template<typename T>
-    inline std::byte* FindString(const T* String) {
+    std::pair<const void*, int32_t> IterateVFT(void** VTable, const std::function<bool(std::byte* Addr)>& CallBackForEachFunc, int32_t NumFunctions = 0x150, int32_t OffsetFromStart = 0x0);
+
+    template <typename T>
+    inline std::byte* FindString(const T* String)
+    {
         const auto StringSig = hat::string_to_signature(std::basic_string_view<T>(String));
-        return (std::byte*)hat::find_pattern(StringSig, ".rdata").get();
+        return const_cast<std::byte*>(hat::find_pattern(StringSig, ".rdata").get());
     }
 
-    template<typename T>
-    inline std::byte* FindStringRef(const T* String) {
+    template <typename T>
+    inline std::byte* FindStringRef(const T* String)
+    {
         std::byte* StringAddr = FindString(String);
         if (!StringAddr)
             return nullptr;
@@ -44,7 +50,7 @@ namespace SDK::Memory
                 return false;
 
             return true;
-            };
+        };
 
         std::byte* Result = IterateAll(hat::compile_signature<"4C 8D ? ? ? ? ?">(), ".text", Validate);
         if (!Result)
@@ -53,21 +59,17 @@ namespace SDK::Memory
         return Result;
     }
 
-    template<int Alignement = 4, typename T>
+    template <int Alignement = 4, typename T>
     inline int32_t FindOffset(std::vector<std::pair<void*, T>>& ObjectValuePair, int MinOffset = 0x28, int MaxOffset = 0x1A0)
     {
         int32_t HighestFoundOffset = MinOffset;
 
-        for (int i = 0; i < ObjectValuePair.size(); i++)
-        {
+        for (int i = 0; i < ObjectValuePair.size(); i++) {
             uint8_t* BytePtr = (uint8_t*)(ObjectValuePair[i].first);
 
-            for (int j = HighestFoundOffset; j < MaxOffset; j += Alignement)
-            {
-                if ((*reinterpret_cast<T*>(BytePtr + j)) == ObjectValuePair[i].second && j >= HighestFoundOffset)
-                {
-                    if (j > HighestFoundOffset)
-                    {
+            for (int j = HighestFoundOffset; j < MaxOffset; j += Alignement) {
+                if (*reinterpret_cast<T*>(BytePtr + j) == ObjectValuePair[i].second && j >= HighestFoundOffset) {
+                    if (j > HighestFoundOffset) {
                         HighestFoundOffset = j;
                         i = 0;
                     }
@@ -79,7 +81,7 @@ namespace SDK::Memory
         return HighestFoundOffset != MinOffset ? HighestFoundOffset : OFFSET_NOT_FOUND;
     }
 
-    template<bool bCheckForVft = true>
+    template <bool bCheckForVft = true>
     inline int32_t GetValidPointerOffset(uint8_t* ObjA, uint8_t* ObjB, int32_t StartingOffset, int32_t MaxOffset)
     {
         auto IsBadReadPtr = [](void* p) -> bool {
@@ -95,13 +97,12 @@ namespace SDK::Memory
             }
 
             return true;
-            };
+        };
 
         if (IsBadReadPtr(ObjA) || IsBadReadPtr(ObjB))
             return OFFSET_NOT_FOUND;
 
-        for (int j = StartingOffset; j <= MaxOffset; j += 0x8)
-        {
+        for (int j = StartingOffset; j <= MaxOffset; j += 0x8) {
             const bool bIsAValid = !IsBadReadPtr(*reinterpret_cast<void**>(ObjA + j)) && (bCheckForVft ? !IsBadReadPtr(**reinterpret_cast<void***>(ObjA + j)) : true);
             const bool bIsBValid = !IsBadReadPtr(*reinterpret_cast<void**>(ObjB + j)) && (bCheckForVft ? !IsBadReadPtr(**reinterpret_cast<void***>(ObjB + j)) : true);
 

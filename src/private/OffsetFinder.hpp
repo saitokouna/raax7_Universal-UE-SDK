@@ -2,10 +2,11 @@
 
 namespace OffsetFinder
 {
-	bool FindFMemoryRealloc();
-	bool FindGObjects();
-	bool FindFNameConstructor();
-	bool FindAppendString();
+    bool FindFMemoryRealloc();
+    bool FindGObjects();
+    bool FindFNameConstructor();
+    bool FindAppendString();
+    bool FindProcessEventIdx();
 
-	SDK::SDKStatus SetupMemberOffsets();
+    SDK::SDKStatus SetupMemberOffsets();
 }

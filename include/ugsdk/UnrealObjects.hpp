@@ -1,9 +1,10 @@
 #pragma once
+#include <memory>
+#include <stdexcept>
+#include <string>
 #include <ugsdk/Macros.hpp>
 #include <ugsdk/UnrealEnums.hpp>
-#include <memory>
-#include <string>
-#include <stdexcept>
+#include <ugsdk/Utils.hpp>
 
 namespace SDK
 {
@@ -24,6 +25,14 @@ namespace SDK
         UObject() = delete;
         ~UObject() = delete;
 
+    private:
+        struct ArgInfo
+        {
+            int32_t Offset;
+            int32_t Size;
+            bool IsOutParm;
+        };
+
     public:
         void** VFT;
         DECLARE_GETTER_SETTER(int32_t, Flags);
@@ -42,8 +51,32 @@ namespace SDK
 
         void ProcessEvent(class UFunction* Function, void* Parms);
 
-        template<typename ReturnType, typename... Args>
-        ReturnType Call(const class UFunction* Function, Args&&... args);
+        /**
+         * @brief Calls a ProcessEvent function, automatically handling the parameter structure.
+         * @brief This function requires the following:
+         * @brief - All arguments must match the order of the UFunction.
+         * @brief - Output arguments are only supported using pointers, not references.
+         * @brief - Pointers to output arguments can be larger than the actual struct; only the real size of the struct will be copied.
+         *
+         * @param Function - A pointer to the UFunction. If it is nullptr, the UFunction will be found using the ClassName and FunctionName.
+         * @param ReturnType - The return type of the function, void by default.
+         * @tparam ClassName and FunctionName - Used to force each template instance to be unique. If no UFunction is provided, it is used to find the target function.
+         * @tparam ReturnType - The return type of the function, void by default.
+         * @tparam Args - Types of the arguments to be sent to the UFunction.
+         *
+         * @return The result of the UFunction call, if there is a return type.
+         *
+         * @throws std::invalid_argument - If no Function pointer was passed and finding the function failed.
+         * @throws std::invalid_argument - If an output argument is not a pointer.
+         * @throws std::bad_alloc - If allocating memory for the parameters on the stack fails.
+         * @throws std::logic_error - If a return type was specified, but the UFunction does not have a return type.
+         */
+        template <ConstString ClassName, ConstString FunctionName, typename ReturnType = void, typename... Args>
+        ReturnType Call(class UFunction** Function = nullptr, Args&&... args);
+
+    private:
+        template <int N>
+        void InitializeArgInfo(UFunction* Function, std::array<ArgInfo, N>& ArgOffsets, size_t& ParmsSize, int32_t& ReturnValueOffset, int32_t& ReturnValueSize, bool& HasReturnValue);
     };
 
     class UField : public UObject
@@ -65,7 +98,7 @@ namespace SDK
     public:
         DECLARE_GETTER_SETTER(class UStruct*, Super);
         DECLARE_GETTER_SETTER(class UField*, Children);
-        //DECLARE_GETTER_SETTER(FField*, ChildProperties);
+        // DECLARE_GETTER_SETTER(FField*, ChildProperties);
 
     public:
         UField* FindMember(const std::string& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
@@ -121,8 +154,11 @@ namespace SDK
         ~UFunction() = delete;
 
     public:
+        DECLARE_GETTER_SETTER(EFunctionFlags, FunctionFlags);
         DECLARE_GETTER_SETTER(uint8_t, NumParms);
         DECLARE_GETTER_SETTER(uint16_t, ParmsSize);
         DECLARE_GETTER_SETTER(uint16_t, ReturnValueOffset);
     };
 }
+
+#include <ugsdk/UnrealObjetcs.inl>

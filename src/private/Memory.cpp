@@ -19,7 +19,20 @@ namespace SDK::Memory
         return ((ModRM & 0b11000111) == 0b00000101);
     }
 
-    std::byte* IterateAll(hat::signature_view Signature, const std::string& Section, const std::function<bool(std::byte*)>& It) {
+    bool IsInProcessRange(uintptr_t Addr)
+    {
+        // NtCurrentPeb()+0x10 = ImageBaseAddress.
+        PIMAGE_DOS_HEADER DosHeader = *(PIMAGE_DOS_HEADER*)(__readgsqword(0x60) + 0x10);
+        PIMAGE_NT_HEADERS NtHeaders = (PIMAGE_NT_HEADERS)((uintptr_t)DosHeader + DosHeader->e_lfanew);
+
+        const auto ImageBase = (uintptr_t)DosHeader;
+        const auto ImageSize = NtHeaders->OptionalHeader.SizeOfImage;
+
+        return Addr > ImageBase && Addr < (ImageBase + ImageSize);
+    }
+
+    std::byte* IterateAll(hat::signature_view Signature, const std::string& Section, const std::function<bool(std::byte*)>& It)
+    {
         std::span<std::byte> Data = hat::process::get_section_data(hat::process::get_process_module(), Section);
         if (Data.empty())
             return nullptr;
@@ -27,8 +40,7 @@ namespace SDK::Memory
         const std::byte* DataBegin = Data.data();
         const std::byte* DataEnd = DataBegin + Data.size();
 
-        while (DataBegin < DataEnd)
-        {
+        while (DataBegin < DataEnd) {
             auto Result = hat::find_pattern(DataBegin, DataEnd, Signature);
             if (!Result.has_result())
                 break;
@@ -42,9 +54,28 @@ namespace SDK::Memory
 
         return nullptr;
     }
+
     std::byte* FindPatternInRange(const std::byte* Start, const std::byte* End, hat::signature_view Signature)
     {
         auto Result = hat::find_pattern(Start, End, Signature);
-        return (std::byte*)Result.get();
+        return const_cast<std::byte*>(Result.get());
+    }
+
+    std::pair<const void*, int32_t> IterateVFT(void** VTable, const std::function<bool(std::byte* Addr)>& CallBackForEachFunc, int32_t NumFunctions, int32_t OffsetFromStart)
+    {
+        if (!CallBackForEachFunc)
+            return { nullptr, -1 };
+
+        for (int i = 0; i < 0x150; i++) {
+            std::byte* CurrentFuncAddress = reinterpret_cast<std::byte*>(VTable[i]);
+
+            if (CurrentFuncAddress == NULL || !IsInProcessRange(reinterpret_cast<uintptr_t>(CurrentFuncAddress)))
+                break;
+
+            if (CallBackForEachFunc(CurrentFuncAddress))
+                return { CurrentFuncAddress, i };
+        }
+
+        return { nullptr, OFFSET_NOT_FOUND };
     }
 }
