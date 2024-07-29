@@ -6,7 +6,7 @@
 #include <ugsdk/Macros.hpp>
 #include <vector>
 
-// Credit to https://github.com/Encryqed/Dumper-7 for the FindOffset function.
+// Credit to https://github.com/Encryqed/Dumper-7 for the FindOffset and GetValidPointerOffset function.
 
 namespace SDK::Memory
 {

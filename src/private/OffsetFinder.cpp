@@ -9,11 +9,11 @@
 #include <ugsdk/Settings.hpp>
 #include <ugsdk/UnrealObjects.hpp>
 
-// Most of the offset finding is copied 1:1 from https://github.com/Encryqed/Dumper-7, so credits to them.
+// Most of the member offset finding is based off of https://github.com/Encryqed/Dumper-7, so credits to them.
 //
-// Most people would consider this skidding, but I would think it's what open source is for.
-// Someone has found the most optimal way to find something, why should I limit my library
-// just to avoid copying them?
+// Most people would consider this skidding, but I think it's what open source is for.
+// Someone has found the most optimal way to find something, why should I force myself to
+// reinvent the wheel just to avoid copying them?
 
 #define GET_OFFSET(Function, Variable, ErrorCode) \
     Variable = Function();                        \
