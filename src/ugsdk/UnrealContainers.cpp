@@ -5,7 +5,7 @@
 namespace SDK
 {
     FName::FName(const char* Str)
-        : ComparisonIdx(0)
+        : ComparisonIndex(0)
         , Number(0)
     {
         static void (*ConstructorNarrow)(const FName*, const char*, bool) = nullptr;
@@ -16,7 +16,7 @@ namespace SDK
         ConstructorNarrow(const_cast<FName*>(this), Str, true);
     }
     FName::FName(const wchar_t* Str)
-        : ComparisonIdx(0)
+        : ComparisonIndex(0)
         , Number(0)
     {
         static void (*ConstructorWide)(const FName*, const wchar_t*, bool) = nullptr;

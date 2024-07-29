@@ -278,14 +278,16 @@ namespace SDK
         { }
         explicit FName(const char* Str);
         explicit FName(const wchar_t* Str);
+        FName() = default;
         ~FName() = default;
 
     public:
-        inline bool operator==(const FName& Other) const { return ComparisonIdx == Other.ComparisonIdx; }
-        inline bool operator!=(const FName& Other) const { return ComparisonIdx != Other.ComparisonIdx; }
+        inline bool operator==(const FName& Other) const { return ComparisonIndex == Other.ComparisonIndex; }
+        inline bool operator!=(const FName& Other) const { return ComparisonIndex != Other.ComparisonIndex; }
+        inline bool IsNone() const { return !ComparisonIndex; }
 
     public:
-        uint32_t ComparisonIdx;
+        uint32_t ComparisonIndex;
         uint32_t Number;
 
     public:
