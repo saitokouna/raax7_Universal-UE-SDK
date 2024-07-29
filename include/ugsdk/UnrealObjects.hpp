@@ -75,11 +75,11 @@ namespace SDK
          * @throws std::bad_alloc - If allocating memory for the parameters on the stack fails.
          * @throws std::logic_error - If a return type was specified, but the UFunction does not have a return type.
          */
-        template <ConstString ClassName, ConstString FunctionName, typename ReturnType = void, typename... Args>
+        template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType = void, typename... Args>
         ReturnType Call(class UFunction* Function, Args&&... args);
 
         /** @brief Simple wrapper to automatically find the UFunction from the template parameters. For full documentation, read the original Call function. */
-        template <ConstString ClassName, ConstString FunctionName, typename ReturnType = void, typename... Args>
+        template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType = void, typename... Args>
         ReturnType Call(Args&&... args);
 
     private:

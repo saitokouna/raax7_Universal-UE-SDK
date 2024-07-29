@@ -15,15 +15,15 @@ namespace SDK
         return PropertyFlags != CASTCLASS_None ? PropertyFlags & PropertyFlag : false;
     }
 
-    bool FBoolProperty::IsNativeBool()
+    bool FBoolProperty::IsNativeBool() const
     {
         return GetFieldMask() == 0xFF;
     }
-    uint8_t FBoolProperty::GetFieldMask()
+    uint8_t FBoolProperty::GetFieldMask() const
     {
         return FieldMask;
     }
-    uint8_t FBoolProperty::GetBitIndex()
+    uint8_t FBoolProperty::GetBitIndex() const
     {
         uint8_t FieldMask = GetFieldMask();
 

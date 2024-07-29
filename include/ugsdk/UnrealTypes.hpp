@@ -66,8 +66,42 @@ namespace SDK
         uint8_t FieldMask;
 
     public:
-        bool IsNativeBool();
-        uint8_t GetFieldMask();
-        uint8_t GetBitIndex();
+        bool IsNativeBool() const;
+        uint8_t GetFieldMask() const;
+        uint8_t GetBitIndex() const;
+    };
+
+    struct FWeakObjectPtr
+    {
+    public:
+        int32_t ObjectIndex;
+        int32_t ObjectSerialNumber;
+
+    public:
+        FWeakObjectPtr() { Reset(); }
+        FWeakObjectPtr(const class UObject* Object) { (*this) = Object; }
+
+        void operator=(const class UObject* Object);
+        FWeakObjectPtr& operator=(const FWeakObjectPtr& Other) = default;
+        bool operator==(const FWeakObjectPtr& Other) const
+        {
+            return (ObjectIndex == Other.ObjectIndex && ObjectSerialNumber == Other.ObjectSerialNumber) /*|| (!IsValid() && !Other.IsValid())*/;
+        }
+        bool operator!=(const FWeakObjectPtr& Other) const
+        {
+            return (ObjectIndex != Other.ObjectIndex || ObjectSerialNumber != Other.ObjectSerialNumber) /*&& (IsValid() || Other.IsValid())*/;
+        }
+
+    public:
+        bool HasSameIndexAndSerialNumber(const FWeakObjectPtr& Other) const
+        {
+            return ObjectIndex == Other.ObjectIndex && ObjectSerialNumber == Other.ObjectSerialNumber;
+        }
+
+        void Reset()
+        {
+            ObjectIndex = -1;
+            ObjectSerialNumber = 0;
+        }
     };
 }

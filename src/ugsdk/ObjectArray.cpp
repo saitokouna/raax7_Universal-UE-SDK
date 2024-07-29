@@ -4,7 +4,7 @@
 
 namespace SDK
 {
-    UObject* Chunked_TUObjectArray::GetByIndex(const int32_t Index) const
+    FUObjectItem* Chunked_TUObjectArray::IndexToObject(int32_t Index) const
     {
         if (Index < 0 || Index > NumElements)
             return nullptr;
@@ -12,20 +12,19 @@ namespace SDK
         const int32_t ChunkIndex = Index / ElementsPerChunk;
         const int32_t InChunkIdx = Index % ElementsPerChunk;
 
-        return GetDecrytedObjPtr()[ChunkIndex][InChunkIdx].Object;
+        return &GetDecrytedObjPtr()[ChunkIndex][InChunkIdx];
     }
-    UObject* Fixed_TUObjectArray::GetByIndex(const int32_t Index) const
+    FUObjectItem* Fixed_TUObjectArray::IndexToObject(int32_t Index) const
     {
         if (Index < 0 || Index > NumElements)
             return nullptr;
 
-        return GetDecrytedObjPtr()[Index].Object;
+        return &GetDecrytedObjPtr()[Index];
     }
 
     TUObjectArray::TUObjectArray(bool IsChunked, void* Objects)
         : m_IsChunked(IsChunked)
         , m_ChunkedObjects(nullptr)
-        , m_FixedObjects(nullptr)
     {
         if (IsChunked)
             m_ChunkedObjects = reinterpret_cast<Chunked_TUObjectArray*>(Objects);
@@ -41,13 +40,25 @@ namespace SDK
 
         return 0;
     }
-    UObject* TUObjectArray::GetByIndex(int32_t Index)
+    FUObjectItem* TUObjectArray::IndexToObject(int32_t Index)
     {
-        if (m_IsChunked && m_ChunkedObjects)
-            return m_ChunkedObjects->GetByIndex(Index);
-        else if (!m_IsChunked && m_FixedObjects)
-            return m_FixedObjects->GetByIndex(Index);
+        if (Index < 0 || Index >= Num())
+            return nullptr;
+
+        if (m_IsChunked)
+            return m_ChunkedObjects->IndexToObject(Index);
+        else
+            return m_FixedObjects->IndexToObject(Index);
 
         return nullptr;
+    }
+
+    class UObject* TUObjectArray::GetByIndex(int32_t Index)
+    {
+        FUObjectItem* Object = IndexToObject(Index);
+        if (!Object)
+            return nullptr;
+
+        return Object->Object;
     }
 }

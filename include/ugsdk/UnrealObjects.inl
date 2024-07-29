@@ -10,7 +10,7 @@
 
 namespace SDK
 {
-    template <ConstString ClassName, ConstString FunctionName, typename ReturnType, typename... Args>
+    template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType, typename... Args>
     ReturnType UObject::Call(UFunction* Function, Args&&... args)
     {
         constexpr size_t NumArgs = sizeof...(Args);
@@ -80,7 +80,7 @@ namespace SDK
         }
     }
 
-    template <ConstString ClassName, ConstString FunctionName, typename ReturnType, typename... Args>
+    template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType, typename... Args>
     ReturnType UObject::Call(Args&&... args)
     {
         static UFunction* Function = nullptr;
