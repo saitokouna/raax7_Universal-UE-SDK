@@ -4,16 +4,27 @@
 
 namespace SDK
 {
-    FName::FName(const std::string& Str)
+    FName::FName(const char* Str)
         : ComparisonIdx(0)
         , Number(0)
     {
-        static void (*Constructor)(const FName*, const char*, bool) = nullptr;
+        static void (*ConstructorNarrow)(const FName*, const char*, bool) = nullptr;
 
-        if (!Constructor)
-            Constructor = reinterpret_cast<void (*)(const FName*, const char*, bool)>(SDK::Offsets::FName::Constructor);
+        if (!ConstructorNarrow)
+            ConstructorNarrow = reinterpret_cast<void (*)(const FName*, const char*, bool)>(Offsets::FName::ConstructorNarrow);
 
-        Constructor(const_cast<SDK::FName*>(this), Str.c_str(), true);
+        ConstructorNarrow(const_cast<FName*>(this), Str, true);
+    }
+    FName::FName(const wchar_t* Str)
+        : ComparisonIdx(0)
+        , Number(0)
+    {
+        static void (*ConstructorWide)(const FName*, const wchar_t*, bool) = nullptr;
+
+        if (!ConstructorWide)
+            ConstructorWide = reinterpret_cast<void (*)(const FName*, const wchar_t*, bool)>(Offsets::FName::ConstructorWide);
+
+        ConstructorWide(const_cast<FName*>(this), Str, true);
     }
 
     std::string FName::GetRawString() const
@@ -21,10 +32,10 @@ namespace SDK
         static void (*AppendString)(const FName*, FString*) = nullptr;
 
         if (!AppendString)
-            AppendString = reinterpret_cast<void (*)(const FName*, FString*)>(SDK::Offsets::FName::AppendString);
+            AppendString = reinterpret_cast<void (*)(const FName*, FString*)>(Offsets::FName::AppendString);
 
         FString TempString;
-        AppendString(const_cast<SDK::FName*>(this), &TempString);
+        AppendString(const_cast<FName*>(this), &TempString);
 
         return TempString.ToString();
     }

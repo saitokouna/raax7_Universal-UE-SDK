@@ -11,8 +11,11 @@ namespace SDK
         if (!OffsetFinder::FindGObjects())
             return SDK_FAILED_GOBJECTS;
 
-        if (!OffsetFinder::FindFNameConstructor())
-            return SDK_FAILED_FNAMECONSTRUCTOR;
+        if (!OffsetFinder::FindFNameConstructorNarrow())
+            return SDK_FAILED_FNAMECONSTRUCTOR_NARROW;
+
+        if (!OffsetFinder::FindFNameConstructorWide())
+            return SDK_FAILED_FNAMECONSTRUCTOR_WIDE;
 
         if (!OffsetFinder::FindAppendString())
             return SDK_FAILED_APPENDSTRING;

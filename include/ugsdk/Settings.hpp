@@ -1,5 +1,6 @@
 #pragma once
 
+/** @brief This namespace is managed by the library. Do not write to any values. */
 namespace SDK::Settings
 {
     inline bool ChunkedGObjects = true;
@@ -8,6 +9,7 @@ namespace SDK::Settings
     inline bool SetupFMemory = false;
     inline bool SetupGObjects = false;
     inline bool SetupAppendString = false;
-    inline bool SetupFNameConstructor = false;
+    inline bool SetupFNameConstructorNarrow = false;
+    inline bool SetupFNameConstructorWide = false;
     inline bool SetupMemberOffsets = false;
 }

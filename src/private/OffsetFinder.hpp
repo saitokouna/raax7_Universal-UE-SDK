@@ -4,7 +4,8 @@ namespace OffsetFinder
 {
     bool FindFMemoryRealloc();
     bool FindGObjects();
-    bool FindFNameConstructor();
+    bool FindFNameConstructorNarrow();
+    bool FindFNameConstructorWide();
     bool FindAppendString();
     bool FindProcessEventIdx();
 

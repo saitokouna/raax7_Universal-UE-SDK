@@ -19,20 +19,9 @@ namespace SDK::Memory
 
     std::pair<const void*, int32_t> IterateVFT(void** VTable, const std::function<bool(std::byte* Addr)>& CallBackForEachFunc, int32_t NumFunctions = 0x150, int32_t OffsetFromStart = 0x0);
 
-    template <typename T>
-    inline std::byte* FindString(const T* String)
+    template <typename T = const char*>
+    inline std::byte* FindStringRef(T String)
     {
-        const auto StringSig = hat::string_to_signature(std::basic_string_view<T>(String));
-        return const_cast<std::byte*>(hat::find_pattern(StringSig, ".rdata").get());
-    }
-
-    template <typename T>
-    inline std::byte* FindStringRef(const T* String)
-    {
-        std::byte* StringAddr = FindString(String);
-        if (!StringAddr)
-            return nullptr;
-
         // The encoding of our target LEA is:
         //
         // 48 - REX prefix (indicating 64-bit operand size)
@@ -42,14 +31,27 @@ namespace SDK::Memory
         //
         // We will use Is32BitRelativeAddress to check if the ModR/M byte is correct.
 
-        auto Validate = [StringAddr](std::byte* Address) -> bool {
+        auto Validate = [String](std::byte* Address) -> bool {
             if (!Is32BitRelativeAddress(*(uint8_t*)(Address + 2)))
                 return false;
 
-            if ((std::byte*)CalculateRVA((uintptr_t)Address, 3) != StringAddr)
+            uintptr_t RVA = CalculateRVA(reinterpret_cast<uintptr_t>(Address), 3);
+            if (!IsInProcessRange(RVA))
                 return false;
 
-            return true;
+            if constexpr (std::is_same_v<T, const char*>) {
+                if (!strcmp((const char*)String, (const char*)RVA))
+                    return true;
+            }
+            else if constexpr (std::is_same_v<T, const wchar_t*>) {
+                if (!wcscmp((const wchar_t*)String, (const wchar_t*)RVA))
+                    return true;
+            }
+            else {
+                static_assert(std::is_same_v<T, const char*> || std::is_same_v<T, const wchar_t*>, "Unsupported string type");
+            }
+
+            return false;
         };
 
         std::byte* Result = IterateAll(hat::compile_signature<"4C 8D ? ? ? ? ?">(), ".text", Validate);

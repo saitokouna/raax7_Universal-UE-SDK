@@ -9,9 +9,9 @@ namespace SDK
     bool FastSearch(std::vector<FSEntry>& SearchList)
     {
         // We require all of these functionalities.
-        if (!Settings::SetupFMemory || !Settings::SetupGObjects || !Settings::SetupAppendString || !Settings::SetupFNameConstructor)
+        if (!Settings::SetupFMemory || !Settings::SetupGObjects || !Settings::SetupAppendString)
             return false;
-
+        
         for (int i = 0; (i < GObjects->Num()) && SearchList.size(); i++) {
             UObject* Obj = GObjects->GetByIndex(i);
             if (!Obj)

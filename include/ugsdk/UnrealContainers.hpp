@@ -269,7 +269,14 @@ namespace SDK
     class FName
     {
     public:
-        explicit FName(const std::string& Str);
+        explicit FName(const std::string& Str)
+            : FName(Str.c_str())
+        { }
+        explicit FName(const std::wstring& Str)
+            : FName(Str.c_str())
+        { }
+        explicit FName(const char* Str);
+        explicit FName(const wchar_t* Str);
         ~FName() = default;
 
     public:
@@ -303,7 +310,6 @@ namespace SDK
 
         public:
             inline int32_t GetIndex() { return Index; }
-
             inline int32_t IsValid() { return IteratedArray.IsValidIndex(GetIndex()); }
 
         public:

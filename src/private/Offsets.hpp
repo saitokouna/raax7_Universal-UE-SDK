@@ -80,7 +80,8 @@ namespace SDK::Offsets
     }
     namespace FName
     {
-        inline uintptr_t Constructor = 0;
+        inline uintptr_t ConstructorNarrow = 0;
+        inline uintptr_t ConstructorWide = 0;
         inline uintptr_t AppendString = 0;
     }
 }

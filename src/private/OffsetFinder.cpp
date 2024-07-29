@@ -83,10 +83,6 @@ namespace OffsetFinder
             { Class, Struct }
         };
 
-        // In some UE4 versions, this is called Struct is not capitalized.
-        if (ValuePair[0].first == nullptr)
-            ValuePair[0].first = ValuePair[1].second = SDK::GObjects->FindObjectFast("struct");
-
         return SDK::Memory::FindOffset(ValuePair);
     }
     int32_t Find_UStruct_Children()
@@ -285,10 +281,8 @@ namespace OffsetFinder
         // This signature has been very reliable from what I have tested.
         // Since Realloc can be used as Alloc and Free aswell, it is easier to only get Realloc.
         /*
-        48 89 5C 24		mov     [rsp+arg_0], rbx
-        08
-        48 89 74 24		mov     [rsp+arg_8], rsi
-        10
+        48 89 5C 24 08	mov     [rsp+arg_0], rbx
+        48 89 74 24 10	mov     [rsp+arg_8], rsi
         57				push    rdi
         48 83 EC 20		sub     rsp, 20h
         48 8B F1		mov     rsi, rcx
@@ -319,7 +313,6 @@ namespace OffsetFinder
         if (ChunkedGObjects.has_result()) {
             SDK::Settings::ChunkedGObjects = true;
             SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 3));
-
             SDK::Settings::SetupGObjects = true;
             return true;
         }
@@ -334,14 +327,56 @@ namespace OffsetFinder
 
         return false;
     }
-    bool FindFNameConstructor()
+    bool FindFNameConstructorNarrow()
     {
-        const auto& PatternResult = hat::find_pattern(hat::compile_signature<"41 ? 01 ? ? ? 48 8D 15 ? ? ? ? 48 8D 4D ? E8">(), ".text");
+        /*
+        41 B8 01 00 00 00       mov     r8d, 1
+        48 8D 15 0B BC CE 04    lea     rdx, aGetoutofbounds_0 ; "GetOutOfBoundsWarning"
+        48 8D 0D 14 FE F4 05    lea     rcx, qword_6215D18
+        E9 27 70 D3 01          jmp     FNameConstructorNarrow
+        */
+
+        std::byte* Start = SDK::Memory::FindStringRef("GetOutOfBoundsWarning");
+        std::byte* End = Start + 0x60;
+
+        if (!Start)
+            return false;
+
+        const auto& PatternResult = hat::find_pattern(Start, End, hat::compile_signature<"48 8D ? ? ? ? ? E9">());
         if (!PatternResult.has_result())
             return false;
 
-        SDK::Offsets::FName::Constructor = SDK::Memory::CalculateRVA((uintptr_t)PatternResult.get(), 18);
-        SDK::Settings::SetupFNameConstructor = true;
+        SDK::Offsets::FName::ConstructorNarrow = SDK::Memory::CalculateRVA((uintptr_t)PatternResult.get(), 8);
+        if (!SDK::Memory::IsInProcessRange(SDK::Offsets::FName::ConstructorNarrow))
+            return false;
+
+        SDK::Settings::SetupFNameConstructorNarrow = true;
+        return true;
+    }
+    bool FindFNameConstructorWide()
+    {
+        /*
+        41 B8 01 00 00 00       mov     r8d, 1
+        48 8D 15 29 CB 04 02    lea     rdx, aCanvasobject ; "CanvasObject"
+        48 8D 0D 0A 28 2C 03    lea     rcx, qword_6210D40
+        E8 75 EA 0A FF          call    FNameConstructor
+        */
+
+        std::byte* Start = SDK::Memory::FindStringRef(L"CanvasObject");
+        std::byte* End = Start + 0x60;
+
+        if (!Start)
+            return false;
+
+        const auto& PatternResult = hat::find_pattern(Start, End, hat::compile_signature<"48 8D ? ? ? ? ? E8">());
+        if (!PatternResult.has_result())
+            return false;
+
+        SDK::Offsets::FName::ConstructorWide = SDK::Memory::CalculateRVA((uintptr_t)PatternResult.get(), 8);
+        if (!SDK::Memory::IsInProcessRange(SDK::Offsets::FName::ConstructorWide))
+            return false;
+
+        SDK::Settings::SetupFNameConstructorWide = true;
         return true;
     }
     bool FindAppendString()
@@ -375,6 +410,8 @@ namespace OffsetFinder
             std::byte* Result = SDK::Memory::FindPatternInRange(Start, End, Sig.first);
             if (Result) {
                 SDK::Offsets::FName::AppendString = SDK::Memory::CalculateRVA((uintptr_t)Result, Sig.second);
+                if (!SDK::Memory::IsInProcessRange(SDK::Offsets::FName::AppendString))
+                    return false;
 
                 SDK::Settings::SetupAppendString = true;
                 return true;
@@ -409,7 +446,7 @@ namespace OffsetFinder
             { SDK::FSUObject("Vector", &Vector) },
             { SDK::FSUObject("Vector4", &Vector4) },
             { SDK::FSUObject("Vector2D", &Vector2D) },
-            { SDK::FSUObject("Guid", /*SDK::CASTCLASS_UStruct,*/ &Guid) },
+            { SDK::FSUObject("Guid", &Guid) },
             { SDK::FSUObject("Transform", &Transform) },
 
             { SDK::FSUObject("KismetSystemLibrary", &KismetSystemLibrary) },
@@ -425,8 +462,8 @@ namespace OffsetFinder
             { SDK::FSUObject("Default__Object", &Default__Object) },
             { SDK::FSUObject("Default__Field", &Default__Field) },
 
-            { SDK::FSUObject("Color", /*SDK::CASTCLASS_UStruct,*/ &Color) },
-            { SDK::FSUObject("Engine", /*SDK::CASTCLASS_UClass,*/ &Engine) },
+            { SDK::FSUObject("Color", &Color) },
+            { SDK::FSUObject("Engine", &Engine) },
 
             { SDK::FSUObject("ENetRole", &ENetRole) },
             { SDK::FSUObject("ETraceTypeQuery", &ETraceTypeQuery) }
