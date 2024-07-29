@@ -1,7 +1,7 @@
 #pragma once
 #include <ugsdk/ObjectArray.hpp>
+#include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealObjects.hpp>
-#include <ugsdk/UnrealTypes.hpp>
 
 namespace SDK
 {
@@ -24,6 +24,7 @@ namespace SDK
     UEType* TUObjectArray::FindObjectFast(const std::string& Name, EClassCastFlags RequiredType)
     {
         FName fName = FName(Name);
+
         for (int i = 0; i < GObjects->Num(); i++) {
             UObject* Object = GObjects->GetByIndex(i);
             if (!Object)
@@ -41,6 +42,7 @@ namespace SDK
     {
         FName fName = FName(Name);
         FName fOuter = FName(Outer);
+
         for (int i = 0; i < GObjects->Num(); i++) {
             UObject* Object = GObjects->GetByIndex(i);
             if (!Object)

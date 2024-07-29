@@ -17,8 +17,7 @@ namespace SDK
         if (!OffsetFinder::FindAppendString())
             return SDK_FAILED_APPENDSTRING;
 
-        SDKStatus Status = OffsetFinder::SetupMemberOffsets();
-        if (Status != SDK_SUCCESS)
+        if (const auto Status = OffsetFinder::SetupMemberOffsets(); Status != SDK_SUCCESS)
             return Status;
 
         return OffsetFinder::FindProcessEventIdx() ? SDK_SUCCESS : SDK_FAILED_PROCESSEVENTIDX;

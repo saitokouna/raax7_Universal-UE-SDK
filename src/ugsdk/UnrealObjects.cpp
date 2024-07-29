@@ -1,8 +1,8 @@
 #pragma once
 #include <private/Offsets.hpp>
 #include <private/Settings.hpp>
+#include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealObjects.hpp>
-#include <ugsdk/UnrealTypes.hpp>
 
 namespace SDK
 {
@@ -13,11 +13,11 @@ namespace SDK
     DEFINE_GETTER_SETTER(UObject, UObject*, Outer, SDK::Offsets::UObject::Outer);
     bool UObject::HasTypeFlag(EClassCastFlags TypeFlag)
     {
-        return TypeFlag != CASTCLASS_None ? Class()->CastFlags() & TypeFlag : true;
+        return TypeFlag != CASTCLASS_None ? Class()->ClassCastFlags() & TypeFlag : true;
     }
     bool UObject::IsA(UClass* Target)
     {
-        for (UStruct* Super = Class(); Super; Super = Super->Super()) {
+        for (UStruct* Super = Class(); Super; Super = Super->SuperStruct()) {
             if (Super == Target) {
                 return true;
             }
@@ -60,10 +60,6 @@ namespace SDK
     }
 
     DEFINE_GETTER_SETTER(UField, UField*, Next, SDK::Offsets::UField::Next);
-    UField* UStruct::FindMember(const std::string& Name, EClassCastFlags TypeFlag)
-    {
-        return FindMember(FName(Name), TypeFlag);
-    }
     UField* UStruct::FindMember(const FName& Name, EClassCastFlags TypeFlag)
     {
         for (SDK::UField* Child = Children(); Child; Child = Child->Next()) {
@@ -72,10 +68,6 @@ namespace SDK
         }
 
         return nullptr;
-    }
-    PropertyInfo UStruct::FindProperty(const std::string& Name, EClassCastFlags TypeFlag)
-    {
-        return FindProperty(FName(Name), TypeFlag);
     }
     PropertyInfo UStruct::FindProperty(const FName& Name, EClassCastFlags TypeFlag)
     {
@@ -106,28 +98,18 @@ namespace SDK
 
         return Result;
     }
-    UFunction* UStruct::FindFunction(const std::string& Name, EClassCastFlags TypeFlag)
+    UFunction* UStruct::FindFunction(const FName& Name)
     {
-        return FindFunction(FName(Name), TypeFlag);
-    }
-    UFunction* UStruct::FindFunction(const FName& Name, EClassCastFlags TypeFlag)
-    {
-        for (SDK::UField* Child = Children(); Child; Child = Child->Next()) {
-            if (!Child->HasTypeFlag(CASTCLASS_UFunction) && !Child->HasTypeFlag(TypeFlag))
-                continue;
-
-            if (Child->Name() == Name)
-                return reinterpret_cast<UFunction*>(Child);
-        }
-
-        return nullptr;
+        return reinterpret_cast<UFunction*>(FindMember(Name, CASTCLASS_UFunction));
     }
 
-    DEFINE_GETTER_SETTER(UStruct, UStruct*, Super, SDK::Offsets::UStruct::Super);
+    DEFINE_GETTER_SETTER(UStruct, UStruct*, SuperStruct, SDK::Offsets::UStruct::SuperStruct);
     DEFINE_GETTER_SETTER(UStruct, UField*, Children, SDK::Offsets::UStruct::Children);
+    DEFINE_GETTER_SETTER(UStruct, int32_t, PropertiesSize, SDK::Offsets::UStruct::PropertiesSize);
+    DEFINE_GETTER_SETTER(UStruct, int32_t, MinAlignment, SDK::Offsets::UStruct::MinAlignment);
 
-    DEFINE_GETTER_SETTER(UClass, EClassCastFlags, CastFlags, SDK::Offsets::UClass::CastFlags);
-    DEFINE_GETTER_SETTER(UClass, UObject*, DefaultObject, SDK::Offsets::UClass::DefaultObject);
+    DEFINE_GETTER_SETTER(UClass, EClassCastFlags, ClassCastFlags, SDK::Offsets::UClass::ClassCastFlags);
+    DEFINE_GETTER_SETTER(UClass, UObject*, ClassDefaultObject, SDK::Offsets::UClass::ClassDefaultObject);
 
     bool UProperty::HasPropertyFlag(EPropertyFlags PropertyFlag)
     {
@@ -177,6 +159,22 @@ namespace SDK
         }
 
         return 0xFF;
+    }
+
+    TArray<TPair<FName, int64_t>> UEnum::Names() const
+    {
+        return *(TArray<TPair<FName, int64_t>>*)((uintptr_t)this + SDK::Offsets::UEnum::Names);
+    }
+    int64_t UEnum::FindEnumerator(const FName& Name)
+    {
+        auto NamesArray = Names();
+        for (auto& It : NamesArray) {
+            if (It.Key() == Name) {
+                return It.Value();
+            }
+        }
+
+        return OFFSET_NOT_FOUND;
     }
 
     DEFINE_GETTER_SETTER(UFunction, EFunctionFlags, FunctionFlags, SDK::Offsets::UFunction::FunctionFlags);

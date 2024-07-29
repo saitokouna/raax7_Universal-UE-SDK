@@ -1,33 +1,31 @@
 #include <private/Settings.hpp>
 #include <ugsdk/FastSearch.hpp>
 #include <ugsdk/ObjectArray.hpp>
+#include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealObjects.hpp>
-#include <ugsdk/UnrealTypes.hpp>
 
 namespace SDK
 {
     bool FastSearch(std::vector<FSEntry>& SearchList)
     {
         // We require all of these functionalities.
-        if (!Settings::SetupFMemory || !Settings::SetupGObjects || !Settings::SetupAppendString || !Settings::SetupFNameConstructor) {
+        if (!Settings::SetupFMemory || !Settings::SetupGObjects || !Settings::SetupAppendString || !Settings::SetupFNameConstructor)
             return false;
-        }
 
         for (int i = 0; (i < GObjects->Num()) && SearchList.size(); i++) {
             UObject* Obj = GObjects->GetByIndex(i);
             if (!Obj)
                 continue;
 
-            for (auto It = SearchList.begin(); It != SearchList.end();) {
-                bool DontIncrement = false;
+            auto It = SearchList.begin();
+            while (It != SearchList.end()) {
+                bool Found = false;
 
                 switch (It->Type) {
                 case FS_UOBJECT: {
                     if (Obj->HasTypeFlag(It->Object.RequiredType) && Obj->Name() == It->Object.ObjectName) {
                         *It->Object.OutObject = Obj;
-
-                        It = SearchList.erase(It);
-                        DontIncrement = true;
+                        Found = true;
                     }
                     break;
                 }
@@ -45,8 +43,24 @@ namespace SDK
                     if (It->Property.OutMask)
                         *It->Property.OutMask = Info.ByteMask;
 
-                    It = SearchList.erase(It);
-                    DontIncrement = true;
+                    Found = true;
+                    break;
+                }
+                case FS_ENUM: {
+                    if (!Obj->HasTypeFlag(CASTCLASS_UEnum) || Obj->Name() != It->Enum.EnumName)
+                        break;
+
+                    SDK::UEnum* ObjEnum = reinterpret_cast<SDK::UEnum*>(Obj);
+                    int64_t Value = ObjEnum->FindEnumerator(It->Enum.EnumeratorName);
+                    if (Value == OFFSET_NOT_FOUND)
+                        break;
+
+                    if (It->Enum.OutEnumeratorValue)
+                        *It->Enum.OutEnumeratorValue = Value;
+                    if (It->Enum.OutEnum)
+                        *It->Enum.OutEnum = ObjEnum;
+
+                    Found = true;
                     break;
                 }
                 case FS_UFUNCTION: {
@@ -60,8 +74,7 @@ namespace SDK
 
                     *It->Function.OutFunction = Function;
 
-                    It = SearchList.erase(It);
-                    DontIncrement = true;
+                    Found = true;
                     break;
                 }
 
@@ -70,11 +83,13 @@ namespace SDK
                     break;
                 }
 
-                if (!DontIncrement)
+                if (Found)
+                    It = SearchList.erase(It);
+                else
                     ++It;
             }
         }
 
-        return SearchList.size() == 0;
+        return SearchList.empty();
     }
 }

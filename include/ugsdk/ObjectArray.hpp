@@ -73,20 +73,49 @@ namespace SDK
         class UObject* GetByIndex(int32_t Index);
 
     public:
+        /**
+         * @brief Finds a UObject in GObjects based off of it's full name, in the Dumper-7 style path.
+         *
+         * @tparam UEType - The object type to be casted to.
+         * @param[in] FullName - The full target Dumper-7 style object path.
+         * @param[in] RequiredType - The required EClassCastFlags.
+         *
+         * @return A pointer to UObject if found, else a nullptr.
+         */
         template <typename UEType = class UObject>
         static UEType* FindObject(const std::string& FullName, EClassCastFlags RequiredType = CASTCLASS_None);
 
+        /**
+         * @brief Finds a UObject in GObjects based off of it's object name.
+         *
+         * @tparam UEType - The object type to be casted to.
+         * @param[in] Name - The target object's name.
+         * @param[in] RequiredType - The required EClassCastFlags.
+         *
+         * @return A pointer to UObject if found, else a nullptr.
+         */
         template <typename UEType = class UObject>
         static UEType* FindObjectFast(const std::string& Name, EClassCastFlags RequiredType = CASTCLASS_None);
 
+        /**
+         * @brief Finds a UObject in GObjects, then finds a UObject in its outer object list.
+         *
+         * @tparam UEType - The object type to be casted to.
+         * @param[in] Name - The target object's name.
+         * @param[in] Outer - The target outer object's name.
+         *
+         * @return A pointer to UObject if found, else a nullptr.
+         */
         template <typename UEType = class UObject>
         static UEType* FindObjectFastInOuter(const std::string& Name, const std::string& Outer);
 
+        /** @brief Wrapper for FindObject. */
         class UClass* FindClass(const std::string& ClassFullName)
         {
             return FindObject<class UClass>(ClassFullName, CASTCLASS_UClass);
         }
 
+        /** @brief Wrapper for FindObjectFast. */
         class UClass* FindClassFast(const std::string& ClassName)
         {
             return FindObjectFast<class UClass>(ClassName, CASTCLASS_UClass);

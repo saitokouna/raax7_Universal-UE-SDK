@@ -23,14 +23,16 @@ namespace SDK::Offsets
     }
     namespace UStruct
     {
-        inline Offset_t Super = OFFSET_NOT_FOUND;
+        inline Offset_t SuperStruct = OFFSET_NOT_FOUND;
         inline Offset_t Children = OFFSET_NOT_FOUND;
         inline Offset_t ChildProperties = OFFSET_NOT_FOUND;
+        inline Offset_t PropertiesSize = OFFSET_NOT_FOUND;
+        inline Offset_t MinAlignment = OFFSET_NOT_FOUND;
     }
     namespace UClass
     {
-        inline Offset_t CastFlags = OFFSET_NOT_FOUND;
-        inline Offset_t DefaultObject = OFFSET_NOT_FOUND;
+        inline Offset_t ClassCastFlags = OFFSET_NOT_FOUND;
+        inline Offset_t ClassDefaultObject = OFFSET_NOT_FOUND;
     }
     namespace UProperty
     {
@@ -49,6 +51,10 @@ namespace SDK::Offsets
         };
 
         inline Offset_t Base = OFFSET_NOT_FOUND;
+    }
+    namespace UEnum
+    {
+        inline Offset_t Names = OFFSET_NOT_FOUND;
     }
     namespace UFunction
     {

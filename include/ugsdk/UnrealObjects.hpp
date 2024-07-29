@@ -3,7 +3,9 @@
 #include <stdexcept>
 #include <string>
 #include <ugsdk/Macros.hpp>
+#include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealEnums.hpp>
+#include <ugsdk/UnrealTypes.hpp>
 #include <ugsdk/Utils.hpp>
 
 namespace SDK
@@ -58,11 +60,11 @@ namespace SDK
          * @brief - Output arguments are only supported using pointers, not references.
          * @brief - Pointers to output arguments can be larger than the actual struct; only the real size of the struct will be copied.
          *
-         * @param Function - A pointer to the UFunction. If it is nullptr, the UFunction will be found using the ClassName and FunctionName.
-         * @param ReturnType - The return type of the function, void by default.
          * @tparam ClassName and FunctionName - Used to force each template instance to be unique. If no UFunction is provided, it is used to find the target function.
          * @tparam ReturnType - The return type of the function, void by default.
          * @tparam Args - Types of the arguments to be sent to the UFunction.
+         * @param[in] Function - A pointer to the UFunction. If it is nullptr, the UFunction will be found using the ClassName and FunctionName.
+         * @param[in,out] args - Arguments to be sent to the UFunction.
          *
          * @return The result of the UFunction call, if there is a return type.
          *
@@ -74,7 +76,7 @@ namespace SDK
         template <ConstString ClassName, ConstString FunctionName, typename ReturnType = void, typename... Args>
         ReturnType Call(class UFunction** Function = nullptr, Args&&... args);
 
-    private:
+    protected:
         template <int N>
         void InitializeArgInfo(UFunction* Function, std::array<ArgInfo, N>& ArgOffsets, size_t& ParmsSize, int32_t& ReturnValueOffset, int32_t& ReturnValueSize, bool& HasReturnValue);
     };
@@ -96,17 +98,35 @@ namespace SDK
         ~UStruct() = delete;
 
     public:
-        DECLARE_GETTER_SETTER(class UStruct*, Super);
+        DECLARE_GETTER_SETTER(class UStruct*, SuperStruct);
         DECLARE_GETTER_SETTER(class UField*, Children);
         // DECLARE_GETTER_SETTER(FField*, ChildProperties);
+        DECLARE_GETTER_SETTER(int32_t, PropertiesSize);
+        DECLARE_GETTER_SETTER(int32_t, MinAlignment);
 
     public:
-        UField* FindMember(const std::string& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+        /**
+         * @brief Finds a child matching the specified name and EClassCastFlags.
+         *
+         * @param[in] Name - Target child name.
+         * @param[in] TypeFlag - Target EClassCastFlags for the child.
+         *
+         * @return A pointer to the child if found, else a nullptr.
+         */
         UField* FindMember(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
-        PropertyInfo FindProperty(const std::string& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+
+        /**
+         * @brief Finds a target property, supporting UProperties and FProperties.
+         *
+         * @param[in] Name - Target property name.
+         * @param[in] TypeFlag - Target property EClassCastFlags.
+         *
+         * @return An instance of the PropertyInfo struct.
+         */
         PropertyInfo FindProperty(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
-        class UFunction* FindFunction(const std::string& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
-        class UFunction* FindFunction(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+
+        /** @brief Wrapper for FindMember to find a UFunction. */
+        class UFunction* FindFunction(const FName& Name);
     };
 
     class UClass : public UStruct
@@ -116,8 +136,8 @@ namespace SDK
         ~UClass() = delete;
 
     public:
-        DECLARE_GETTER_SETTER(EClassCastFlags, CastFlags);
-        DECLARE_GETTER_SETTER(class UObject*, DefaultObject);
+        DECLARE_GETTER_SETTER(EClassCastFlags, ClassCastFlags);
+        DECLARE_GETTER_SETTER(UObject*, ClassDefaultObject);
     };
 
     class UProperty : public UField
@@ -147,6 +167,24 @@ namespace SDK
         uint8_t GetBitIndex();
     };
 
+    class UEnum : public UField
+    {
+    private:
+        UEnum() = delete;
+        ~UEnum() = delete;
+
+    public:
+        TArray<TPair<FName, int64_t>> Names() const;
+
+    public:
+        /**
+         * @brief Finds an enumerator value based off of
+         * @param Name - Target enumerator name.
+         * @return The enumerator value if found, else OFFSET_NOT_FOUND.
+         */
+        int64_t FindEnumerator(const FName& Name);
+    };
+
     class UFunction : public UStruct
     {
     private:
@@ -165,4 +203,4 @@ namespace SDK
     };
 }
 
-#include <ugsdk/UnrealObjetcs.inl>
+#include <ugsdk/UnrealObjects.inl>
