@@ -1,6 +1,6 @@
 #pragma once
 #include <private/Offsets.hpp>
-#include <private/Settings.hpp>
+#include <ugsdk/Settings.hpp>
 #include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealObjects.hpp>
 
@@ -75,15 +75,34 @@ namespace SDK
         Result.Found = false;
 
         if (SDK::Settings::UsesFProperty) {
-            throw std::runtime_error("FProperty not supported!");
+            UObject* DefaultClass = Class()->ClassDefaultObject();
+            if (!DefaultClass || !DefaultClass->HasTypeFlag(CASTCLASS_UClass))
+                return Result;
+
+            for (FField* Field = reinterpret_cast<UClass*>(DefaultClass)->ChildProperties(); Field; Field = Field->Next) {
+                if (!Field->HasTypeFlag(CASTCLASS_FProperty))
+                    continue;
+
+                if (Field->Name == Name) {
+                    FProperty* Property = reinterpret_cast<FProperty*>(Field);
+
+                    Result.Found = true;
+                    Result.Flags = Property->PropertyFlags;
+                    Result.Offset = Property->Offset;
+                    if (Property->HasTypeFlag(CASTCLASS_FBoolProperty) && !reinterpret_cast<FBoolProperty*>(Property)->IsNativeBool())
+                        Result.ByteMask = reinterpret_cast<UBoolProperty*>(Property)->GetFieldMask();
+
+                    return Result;
+                }
+            }
         }
         else {
-            for (SDK::UField* Child = Children(); Child; Child = Child->Next()) {
+            for (UField* Child = Children(); Child; Child = Child->Next()) {
                 if (!Child->HasTypeFlag(CASTCLASS_FProperty) && !Child->HasTypeFlag(TypeFlag))
                     continue;
 
                 if (Child->Name() == Name) {
-                    SDK::UProperty* Property = reinterpret_cast<UProperty*>(Child);
+                    UProperty* Property = reinterpret_cast<UProperty*>(Child);
 
                     Result.Found = true;
                     Result.Flags = Child->Flags();
@@ -105,6 +124,7 @@ namespace SDK
 
     DEFINE_GETTER_SETTER(UStruct, UStruct*, SuperStruct, SDK::Offsets::UStruct::SuperStruct);
     DEFINE_GETTER_SETTER(UStruct, UField*, Children, SDK::Offsets::UStruct::Children);
+    DEFINE_GETTER_SETTER(UStruct, FField*, ChildProperties, SDK::Offsets::UStruct::ChildProperties);
     DEFINE_GETTER_SETTER(UStruct, int32_t, PropertiesSize, SDK::Offsets::UStruct::PropertiesSize);
     DEFINE_GETTER_SETTER(UStruct, int32_t, MinAlignment, SDK::Offsets::UStruct::MinAlignment);
 

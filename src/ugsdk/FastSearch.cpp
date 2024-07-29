@@ -1,6 +1,6 @@
-#include <private/Settings.hpp>
 #include <ugsdk/FastSearch.hpp>
 #include <ugsdk/ObjectArray.hpp>
+#include <ugsdk/Settings.hpp>
 #include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealObjects.hpp>
 

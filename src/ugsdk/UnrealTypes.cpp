@@ -1,41 +1,59 @@
-#include <private/Offsets.hpp>
-#include <string>
-#include <ugsdk/UnrealContainers.hpp>
+#include <ugsdk/UnrealTypes.hpp>
 
 namespace SDK
 {
-    FName::FName(const std::string& Str)
-        : ComparisonIdx(0)
-        , Number(0)
+    bool FField::HasTypeFlag(EClassCastFlags TypeFlag) const
     {
-        static void (*Constructor)(const FName*, const char*, bool) = nullptr;
+        if (ClassPrivate == nullptr)
+            return false;
 
-        if (!Constructor)
-            Constructor = reinterpret_cast<void (*)(const FName*, const char*, bool)>(SDK::Offsets::FName::Constructor);
-
-        Constructor(const_cast<SDK::FName*>(this), Str.c_str(), true);
+        return TypeFlag != CASTCLASS_None ? ClassPrivate->CastFlags & TypeFlag : false;
     }
 
-    std::string FName::GetRawString() const
+    bool FProperty::HasPropertyFlag(EPropertyFlags PropertyFlag) const
     {
-        static void (*AppendString)(const FName*, FString*) = nullptr;
-
-        if (!AppendString)
-            AppendString = reinterpret_cast<void (*)(const FName*, FString*)>(SDK::Offsets::FName::AppendString);
-
-        FString TempString;
-        AppendString(const_cast<SDK::FName*>(this), &TempString);
-
-        return TempString.ToString();
+        return PropertyFlags != CASTCLASS_None ? PropertyFlags & PropertyFlag : false;
     }
-    std::string FName::ToString() const
+
+    bool FBoolProperty::IsNativeBool()
     {
-        std::string OutputString = GetRawString();
-        size_t pos = OutputString.rfind('/');
+        return GetFieldMask() == 0xFF;
+    }
+    uint8_t FBoolProperty::GetFieldMask()
+    {
+        return FieldMask;
+    }
+    uint8_t FBoolProperty::GetBitIndex()
+    {
+        uint8_t FieldMask = GetFieldMask();
 
-        if (pos == std::string::npos)
-            return OutputString;
+        if (FieldMask != 0xFF) {
+            if (FieldMask == 0x01) {
+                return 0;
+            }
+            if (FieldMask == 0x02) {
+                return 1;
+            }
+            if (FieldMask == 0x04) {
+                return 2;
+            }
+            if (FieldMask == 0x08) {
+                return 3;
+            }
+            if (FieldMask == 0x10) {
+                return 4;
+            }
+            if (FieldMask == 0x20) {
+                return 5;
+            }
+            if (FieldMask == 0x40) {
+                return 6;
+            }
+            if (FieldMask == 0x80) {
+                return 7;
+            }
+        }
 
-        return OutputString.substr(pos + 1);
+        return 0xFF;
     }
 }

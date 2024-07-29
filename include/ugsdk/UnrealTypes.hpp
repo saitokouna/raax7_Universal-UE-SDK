@@ -37,6 +37,9 @@ namespace SDK
         FField* Next;
         FName Name;
         int32_t ObjFlags;
+
+    public:
+        bool HasTypeFlag(EClassCastFlags TypeFlag) const;
     };
 
     class FProperty : public FField
@@ -48,6 +51,9 @@ namespace SDK
         uint8_t Pad_4[0x4];
         int32_t Offset;
         uint8_t Pad_5[0x28];
+
+    public:
+        bool HasPropertyFlag(EPropertyFlags PropertyFlag) const;
     };
 
     class FBoolProperty final : public FProperty
@@ -57,5 +63,10 @@ namespace SDK
         uint8_t ByteOffset;
         uint8_t ByteMask;
         uint8_t FieldMask;
+
+    public:
+        bool IsNativeBool();
+        uint8_t GetFieldMask();
+        uint8_t GetBitIndex();
     };
 }

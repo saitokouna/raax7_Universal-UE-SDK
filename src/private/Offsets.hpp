@@ -65,6 +65,15 @@ namespace SDK::Offsets
         inline Offset_t FuncOffset = OFFSET_NOT_FOUND;
     }
 
+    namespace FField
+    {
+        inline Offset_t FunctionFlags = OFFSET_NOT_FOUND;
+        inline Offset_t NumParms = OFFSET_NOT_FOUND;
+        inline Offset_t ParmsSize = OFFSET_NOT_FOUND;
+        inline Offset_t ReturnValueOffset = OFFSET_NOT_FOUND;
+        inline Offset_t FuncOffset = OFFSET_NOT_FOUND;
+    }
+
     namespace FMemory
     {
         inline uintptr_t Realloc = 0;

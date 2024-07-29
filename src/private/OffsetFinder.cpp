@@ -1,14 +1,12 @@
 #include <SDKStatus.hpp>
-#include <Windows.h>
-#include <format>
 #include <libhat.hpp>
 #include <memory>
 #include <private/Memory.hpp>
 #include <private/Offsets.hpp>
-#include <private/Settings.hpp>
 #include <ugsdk/FMemory.hpp>
 #include <ugsdk/FastSearch.hpp>
 #include <ugsdk/ObjectArray.hpp>
+#include <ugsdk/Settings.hpp>
 #include <ugsdk/UnrealObjects.hpp>
 
 // Most of the offset finding is copied 1:1 from https://github.com/Encryqed/Dumper-7, so credits to them.
@@ -112,6 +110,10 @@ namespace OffsetFinder
 
         SDK::Settings::UsesFProperty = true;
         return SDK::Memory::FindOffset(ValuePair);
+    }
+    int32_t Find_UStruct_ChildProperties()
+    {
+        return SDK::Memory::GetValidPointerOffset<true>(reinterpret_cast<uint8_t*>(Color), reinterpret_cast<uint8_t*>(Guid), UStruct::Children + 0x8, UStruct::Children + 0x60);
     }
     int32_t Find_UStruct_PropertiesSize()
     {
@@ -251,14 +253,7 @@ namespace OffsetFinder
             { SphereTraceSingleForObjects, 0x109 }
         };
 
-        int ParamSizeOffset = SDK::Memory::FindOffset<1>(ValuePair);
-
-        // This is from Dumper-7. Not sure why we do it, I don't think Dumper-7 knows either but I'll just leave it.
-        if (SDK::Settings::UsesFProperty) {
-            return ParamSizeOffset + 0x1;
-        }
-
-        return ParamSizeOffset;
+        return SDK::Memory::FindOffset<1>(ValuePair);
     }
     int32_t Find_UFunction_ReturnValueOffset()
     {
@@ -475,7 +470,7 @@ namespace OffsetFinder
         GET_OFFSET(Find_UFunction_Func, UFunction::FuncOffset, SDK::SDK_FAILED_UFUNCTION_FUNCOFFSET);
 
         if (SDK::Settings::UsesFProperty) {
-            throw std::runtime_error("FProperties are not supported yet!");
+            GET_OFFSET(Find_UStruct_ChildProperties, UStruct::ChildProperties, SDK::SDK_FAILED_USRTUCT_CHILDPROPERTIES);
         }
         else {
             GET_OFFSET(Find_UProperty_Offset, UProperty::Offset, SDK::SDK_FAILED_UPROPERTY_OFFSET);

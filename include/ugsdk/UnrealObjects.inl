@@ -1,7 +1,10 @@
 #pragma once
+#include <Windows.h>
 #include <algorithm>
 #include <array>
+#include <format>
 #include <ugsdk/FastSearch.hpp>
+#include <ugsdk/Settings.hpp>
 #include <ugsdk/UnrealObjects.hpp>
 
 namespace SDK
@@ -97,19 +100,39 @@ namespace SDK
         HasReturnValue = ReturnValueOffset != UINT16_MAX;
 
         int ArgIndex = 0;
-        for (SDK::UField* Child = Function->Children(); Child; Child = Child->Next()) {
-            if (!Child->HasTypeFlag(CASTCLASS_FProperty))
-                continue;
+        if (Settings::UsesFProperty) {
+            for (FField* Field = Function->ChildProperties(); Field; Field = Field->Next) {
+                if (!Field->HasTypeFlag(CASTCLASS_FProperty))
+                    continue;
 
-            SDK::UProperty* Property = static_cast<SDK::UProperty*>(Child);
-            if (Property->HasPropertyFlag(CPF_ReturnParm)) {
-                if (Property->Offset() == ReturnValueOffset)
-                    ReturnValueSize = Property->ElementSize();
-                continue;
+                FProperty* Property = static_cast<FProperty*>(Field);
+                if (Property->HasPropertyFlag(CPF_ReturnParm)) {
+                    if (Property->Offset == ReturnValueOffset)
+                        ReturnValueSize = Property->ElementSize;
+
+                    continue;
+                }
+
+                ArgOffsets[ArgIndex] = { Property->Offset, Property->ElementSize, Property->HasPropertyFlag(CPF_OutParm) };
+                ArgIndex++;
             }
+        }
+        else {
+            for (UField* Child = Function->Children(); Child; Child = Child->Next()) {
+                if (!Child->HasTypeFlag(CASTCLASS_FProperty))
+                    continue;
 
-            ArgOffsets[ArgIndex] = { Property->Offset(), Property->ElementSize(), Property->HasPropertyFlag(CPF_OutParm) };
-            ArgIndex++;
+                UProperty* Property = static_cast<UProperty*>(Child);
+                if (Property->HasPropertyFlag(CPF_ReturnParm)) {
+                    if (Property->Offset() == ReturnValueOffset)
+                        ReturnValueSize = Property->ElementSize();
+
+                    continue;
+                }
+
+                ArgOffsets[ArgIndex] = { Property->Offset(), Property->ElementSize(), Property->HasPropertyFlag(CPF_OutParm) };
+                ArgIndex++;
+            }
         }
     }
 }

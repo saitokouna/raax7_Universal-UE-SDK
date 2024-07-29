@@ -100,7 +100,7 @@ namespace SDK
     public:
         DECLARE_GETTER_SETTER(class UStruct*, SuperStruct);
         DECLARE_GETTER_SETTER(class UField*, Children);
-        // DECLARE_GETTER_SETTER(FField*, ChildProperties);
+        DECLARE_GETTER_SETTER(FField*, ChildProperties);
         DECLARE_GETTER_SETTER(int32_t, PropertiesSize);
         DECLARE_GETTER_SETTER(int32_t, MinAlignment);
 
