@@ -92,7 +92,7 @@ namespace SDK
             }
         }
 
-        return Call(Function, args);
+        return Call<ClassName, FunctionName, ReturnType, Args...>(Function, std::forward<Args>(args)...);
     }
 
     template <int N>
