@@ -1,9 +1,11 @@
 #pragma once
+
 #include <cstdint>
 #include <ugsdk/Macros.hpp>
 
 namespace SDK
 {
+    /** @brief Flags associated with each property in a class, overriding the property's default behavior. */
     enum EPropertyFlags : uint64_t
     {
         CPF_None = 0,
@@ -69,6 +71,7 @@ namespace SDK
         CPF_ExperimentalAlwaysOverriden = 0x0400000000000000, ///< ****Experimental*** Property should never inherit from the parent when using overridable serialization
     };
 
+    /** @brief Function flags. */
     enum EFunctionFlags : uint32_t
     {
         // Function flags.
@@ -110,6 +113,7 @@ namespace SDK
         FUNC_AllFlags = 0xFFFFFFFF,
     };
 
+    /** @brief Flags describing an object instance */
     enum EObjectFlags
     {
         // Do not add new flags unless they truly belong here. There are alternatives.
@@ -161,6 +165,7 @@ namespace SDK
         RF_AllocatedInSharedPage = 0x80000000, ///< Allocated from a ref-counted page shared with other UObjects
     };
 
+    /** @brief Flags used for quickly casting classes of certain types; all class cast flags are inherited. */
     enum EClassCastFlags : uint64_t
     {
         CASTCLASS_None = 0x0000000000000000,
@@ -218,12 +223,9 @@ namespace SDK
         CASTCLASS_FMulticastInlineDelegateProperty = 0x0004000000000000,
         CASTCLASS_FMulticastSparseDelegateProperty = 0x0008000000000000,
         CASTCLASS_FFieldPathProperty = 0x0010000000000000,
-        CASTCLASS_FLargeWorldCoordinatesRealProperty = 0x0080000000000000,
-        CASTCLASS_FOptionalProperty = 0x0100000000000000,
-        CASTCLASS_FVerseValueProperty = 0x0200000000000000,
-        CASTCLASS_UVerseVMClass = 0x0400000000000000,
     };
 
+    /** @brief Flags describing a class. */
     enum EClassFlags
     {
         /** No Flags */
@@ -236,8 +238,8 @@ namespace SDK
         CLASS_Config = 0x00000004u,
         /** This object type can't be saved; null it out at save time. */
         CLASS_Transient = 0x00000008u,
-        /** This object type may not be available in certain context. (i.e. game runtime or in certain configuration). Optional class data is saved separately to other object types. (i.e. might use sidecar files) */
-        CLASS_Optional = 0x00000010u,
+        /** Successfully parsed. */
+        CLASS_Parsed = 0x00000010u,
         /** */
         CLASS_MatchedSerializers = 0x00000020u,
         /** Indicates that the config settings for this class will be saved to Project/User*.ini (similar to CLASS_GlobalUserConfig) */
@@ -260,13 +262,13 @@ namespace SDK
         CLASS_CollapseCategories = 0x00002000u,
         /** Class is an interface **/
         CLASS_Interface = 0x00004000u,
-        /**  Config for this class is overridden in platform inis, reload when previewing platforms **/
-        CLASS_PerPlatformConfig = 0x00008000u,
+        /**  Do not export a constructor for this class, assuming it is in the cpptext **/
+        CLASS_CustomConstructor = 0x00008000u,
         /** all properties and functions in this class are const and should be exported as const */
         CLASS_Const = 0x00010000u,
 
-        /** Class flag indicating objects of this class need deferred dependency loading */
-        CLASS_NeedsDeferredDependencyLoading = 0x00020000u,
+        /** Class flag indicating the class is having its layout changed, and therefore is not ready for a CDO to be created */
+        CLASS_LayoutChanging = 0x00020000u,
 
         /** Indicates that the class was created from blueprint source material */
         CLASS_CompiledFromBlueprint = 0x00040000u,
@@ -302,9 +304,9 @@ namespace SDK
         CLASS_NewerVersionExists = 0x80000000u,
     };
 
-    ENUM_OPERATORS(EObjectFlags);
-    ENUM_OPERATORS(EFunctionFlags);
     ENUM_OPERATORS(EPropertyFlags);
+    ENUM_OPERATORS(EFunctionFlags);
+    ENUM_OPERATORS(EObjectFlags);
     ENUM_OPERATORS(EClassCastFlags);
     ENUM_OPERATORS(EClassFlags);
 }

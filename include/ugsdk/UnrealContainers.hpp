@@ -1,4 +1,5 @@
 #pragma once
+
 #include <ostream>
 #include <ugsdk/FMemory.hpp>
 #include <ugsdk/Macros.hpp>

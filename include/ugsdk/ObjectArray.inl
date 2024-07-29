@@ -1,4 +1,5 @@
 #pragma once
+
 #include <ugsdk/ObjectArray.hpp>
 #include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealObjects.hpp>

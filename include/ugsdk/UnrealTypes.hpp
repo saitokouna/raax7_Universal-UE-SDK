@@ -1,4 +1,5 @@
 #pragma once
+
 #include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealEnums.hpp>
 

@@ -3,7 +3,7 @@
 /** @brief This namespace is managed by the library. Do not write to any values. */
 namespace SDK::Settings
 {
-    inline bool ChunkedGObjects = true;
+    inline bool UsesChunkedGObjects = true;
     inline bool UsesFProperty = false;
 
     inline bool SetupFMemory = false;

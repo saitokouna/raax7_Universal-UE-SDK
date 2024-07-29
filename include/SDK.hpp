@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SDKStatus.hpp>
 #include <ugsdk/FMemory.hpp>
 #include <ugsdk/FastSearch.hpp>
@@ -10,5 +11,9 @@
 
 namespace SDK
 {
+    /**
+    * @brief Initiates the core SDK. Should be called before any other interaction with the library.
+    * @return An SDKStatus result. Should be compared with SDK_SUCCESS.
+    */
     SDKStatus Init();
 }

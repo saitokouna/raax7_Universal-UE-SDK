@@ -1,4 +1,5 @@
 #pragma once
+
 #include <Windows.h>
 #include <algorithm>
 #include <array>
@@ -10,36 +11,25 @@
 namespace SDK
 {
     template <ConstString ClassName, ConstString FunctionName, typename ReturnType, typename... Args>
-    ReturnType UObject::Call(UFunction** Function, Args&&... args)
+    ReturnType UObject::Call(UFunction* Function, Args&&... args)
     {
         constexpr size_t NumArgs = sizeof...(Args);
         static std::array<ArgInfo, (NumArgs > 0 ? NumArgs : 1)> ArgOffsets = { 0 };
 
-        static UFunction* TargetFunction = nullptr;
         static size_t ParmsSize = 0;
         static int32_t ReturnValueOffset = 0;
         static int32_t ReturnValueSize = 0;
         static bool HasReturnValue = false;
 
-        if (!Function && !TargetFunction)
-
-            if (!FastSearchSingle(FSUFunction(ClassName.c_str(), FunctionName.c_str(), &TargetFunction)))
-                throw std::invalid_argument("Failed to automatically find UFunction!");
-            else if (Function)
-                TargetFunction = *Function;
-
-        // If there are no arguments or return type, we can simply call ProcessEvent.
+        // If there are no arguments and no return type, we can simply call ProcessEvent.
         if constexpr (std::is_void_v<ReturnType> && !NumArgs) {
-            EFunctionFlags FunctionFlags = TargetFunction->FunctionFlags();
-            TargetFunction->FunctionFlags(FunctionFlags | FUNC_Native);
-            ProcessEvent(TargetFunction, nullptr);
-            TargetFunction->FunctionFlags(FunctionFlags);
+            ProcessEventAsNative(Function, nullptr);
             return;
         }
 
         static bool Setup = false;
         if (!Setup) {
-            InitializeArgInfo(TargetFunction, ArgOffsets, ParmsSize, ReturnValueOffset, ReturnValueSize, HasReturnValue);
+            InitializeArgInfo(Function, ArgOffsets, ParmsSize, ReturnValueOffset, ReturnValueSize, HasReturnValue);
             Setup = true;
         }
 
@@ -48,7 +38,7 @@ namespace SDK
         if (!Parms)
             throw std::bad_alloc();
 
-        memset(Parms, 0, ParmsSize);
+        ZeroMemory(Parms, ParmsSize);
 
         // Write input arguments to the parameter buffer.
         {
@@ -61,21 +51,19 @@ namespace SDK
             ((ArgOffsets[ArgIndex].IsOutParm ? void() : WriteInputArg(args, ArgOffsets[ArgIndex]), ++ArgIndex), ...);
         }
 
-        EFunctionFlags FunctionFlags = TargetFunction->FunctionFlags();
-        TargetFunction->FunctionFlags(FunctionFlags | FUNC_Native);
-        ProcessEvent(TargetFunction, Parms);
-        TargetFunction->FunctionFlags(FunctionFlags);
+        ProcessEventAsNative(Function, Parms);
 
         // Write output arguments.
         {
             auto WriteOutputArg = [Parms](auto& Arg, ArgInfo& Info) {
                 using ArgType = std::decay_t<decltype(Arg)>;
 
-                if constexpr (!std::is_void_v<std::remove_pointer_t<ArgType>> && std::is_pointer_v<ArgType>)
+                if constexpr (!std::is_void_v<std::remove_pointer_t<ArgType>> && std::is_pointer_v<ArgType>) {
                     if (Arg)
                         std::memcpy(Arg, Parms + Info.Offset, sizeof(*Arg));
                     else
                         throw std::invalid_argument("Only pointer output parameters are supported!");
+                }
             };
 
             int ArgIndex = 0;
@@ -90,6 +78,21 @@ namespace SDK
             memcpy(&Return, Parms + ReturnValueOffset, std::min<int32_t>(ReturnValueSize, sizeof(ReturnType)));
             return Return;
         }
+    }
+
+    template <ConstString ClassName, ConstString FunctionName, typename ReturnType, typename... Args>
+    ReturnType UObject::Call(Args&&... args)
+    {
+        static UFunction* Function = nullptr;
+
+        // If there is no function, search for it.
+        if (!Function) {
+            if (!FastSearchSingle(FSUFunction(ClassName.c_str(), FunctionName.c_str(), &Function))) {
+                throw std::invalid_argument("Failed to automatically find UFunction!");
+            }
+        }
+
+        return Call(Function, args);
     }
 
     template <int N>

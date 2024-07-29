@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -58,6 +59,7 @@ namespace SDK
         class UObject* GetByIndex(const int32_t Index) const;
     };
 
+    /** @brief Simple wrapper to support both chunked and fixed object arrays. */
     class TUObjectArray
     {
     public:

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <type_traits>
 
 #define OFFSET_NOT_FOUND -1

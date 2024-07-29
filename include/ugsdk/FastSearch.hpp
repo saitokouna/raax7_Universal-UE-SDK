@@ -1,19 +1,11 @@
 #pragma once
+
 #include <ugsdk/UnrealContainers.hpp>
 #include <ugsdk/UnrealEnums.hpp>
 #include <vector>
 
 namespace SDK
 {
-    /** @brief Internal use only. Refer to other structs prefixed with FS. */
-    enum FSType
-    {
-        FS_UOBJECT,
-        FS_UPROPERTY,
-        FS_ENUM,
-        FS_UFUNCTION,
-    };
-
     /**
      * @brief Used to find a UObject matching the specified EClassCastFlags.
      *
@@ -117,6 +109,15 @@ namespace SDK
             , OutEnum(nullptr)
         {
         }
+    };
+
+    /** @brief Internal use only. Refer to other structs prefixed with FS. */
+    enum FSType
+    {
+        FS_UOBJECT,
+        FS_UPROPERTY,
+        FS_ENUM,
+        FS_UFUNCTION,
     };
 
     /** @brief Internal use only. Refer to other structs prefixed with FS. */

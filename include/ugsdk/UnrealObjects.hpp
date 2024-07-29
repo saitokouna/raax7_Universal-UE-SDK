@@ -1,4 +1,5 @@
 #pragma once
+
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -51,6 +52,7 @@ namespace SDK
         std::string GetName();
         std::string GetFullName();
 
+        void ProcessEventAsNative(class UFunction* Function, void* Parms);
         void ProcessEvent(class UFunction* Function, void* Parms);
 
         /**
@@ -62,9 +64,9 @@ namespace SDK
          *
          * @tparam ClassName and FunctionName - Used to force each template instance to be unique. If no UFunction is provided, it is used to find the target function.
          * @tparam ReturnType - The return type of the function, void by default.
-         * @tparam Args - Types of the arguments to be sent to the UFunction.
+         * @tparam ...Args - Types of the arguments to be sent to the UFunction.
          * @param[in] Function - A pointer to the UFunction. If it is nullptr, the UFunction will be found using the ClassName and FunctionName.
-         * @param[in,out] args - Arguments to be sent to the UFunction.
+         * @param[in,out] ...args - Arguments to be sent to the UFunction.
          *
          * @return The result of the UFunction call, if there is a return type.
          *
@@ -74,9 +76,13 @@ namespace SDK
          * @throws std::logic_error - If a return type was specified, but the UFunction does not have a return type.
          */
         template <ConstString ClassName, ConstString FunctionName, typename ReturnType = void, typename... Args>
-        ReturnType Call(class UFunction** Function = nullptr, Args&&... args);
+        ReturnType Call(class UFunction* Function, Args&&... args);
 
-    protected:
+        /** @brief Simple wrapper to automatically find the UFunction from the template parameters. For full documentation, read the original Call function. */
+        template <ConstString ClassName, ConstString FunctionName, typename ReturnType = void, typename... Args>
+        ReturnType Call(Args&&... args);
+
+    private:
         template <int N>
         void InitializeArgInfo(UFunction* Function, std::array<ArgInfo, N>& ArgOffsets, size_t& ParmsSize, int32_t& ReturnValueOffset, int32_t& ReturnValueSize, bool& HasReturnValue);
     };
@@ -162,7 +168,9 @@ namespace SDK
         ~UBoolProperty() = delete;
 
     public:
+        /** @return If the UBoolProperty is for a bitfield, or a native bool. */
         bool IsNativeBool();
+
         uint8_t GetFieldMask();
         uint8_t GetBitIndex();
     };

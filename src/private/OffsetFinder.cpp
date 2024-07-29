@@ -304,23 +304,23 @@ namespace OffsetFinder
     }
     bool FindGObjects()
     {
-        SDK::Settings::ChunkedGObjects = true;
+        SDK::Settings::UsesChunkedGObjects = true;
 
         constexpr hat::fixed_signature ChunkedGObjectsSignature = hat::compile_signature<"48 8B 05 ? ? ? ? 48 8B 0C C8 48 8D 04 D1">();
         constexpr hat::fixed_signature FixedGObjectsSignature = hat::compile_signature<"48 8B 05 ? ? ? ? 48 8D 14 C8 EB 02">();
 
         const auto& ChunkedGObjects = hat::find_pattern(ChunkedGObjectsSignature, ".text");
         if (ChunkedGObjects.has_result()) {
-            SDK::Settings::ChunkedGObjects = true;
-            SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 3));
+            SDK::Settings::UsesChunkedGObjects = true;
+            SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::UsesChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)ChunkedGObjects.get(), 3));
             SDK::Settings::SetupGObjects = true;
             return true;
         }
 
         const auto& FixedGObjects = hat::find_pattern(FixedGObjectsSignature, ".text");
         if (FixedGObjects.has_result()) {
-            SDK::Settings::ChunkedGObjects = false;
-            SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::ChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)FixedGObjects.get(), 3));
+            SDK::Settings::UsesChunkedGObjects = false;
+            SDK::GObjects = std::make_unique<SDK::TUObjectArray>(SDK::Settings::UsesChunkedGObjects, (void*)SDK::Memory::CalculateRVA((uintptr_t)FixedGObjects.get(), 3));
             SDK::Settings::SetupGObjects = true;
             return true;
         }
@@ -498,7 +498,7 @@ namespace OffsetFinder
         if (!SDK::FastSearch(Search))
             return SDK::SDK_FAILED_FASTSEARCH_PASS2;
 
-        GET_OFFSET(Find_UEnum_Names, UEnum::Names, SDK::DK_FAILED_UENUM_NAMES);
+        GET_OFFSET(Find_UEnum_Names, UEnum::Names, SDK::SDK_FAILED_UENUM_NAMES);
 
         GET_OFFSET(Find_UFunction_FunctionFlags, UFunction::FunctionFlags, SDK::SDK_FAILED_UFUNCTION_FUNCTIONFLAGS);
         GET_OFFSET(Find_UFunction_NumParms, UFunction::NumParms, SDK::SDK_FAILED_UFUNCTION_NUMPARMS);
