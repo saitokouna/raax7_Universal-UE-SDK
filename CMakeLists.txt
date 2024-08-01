@@ -15,7 +15,7 @@ set(UGSDK_SRC
     "src/ugsdk/FMemory.cpp"
     "src/ugsdk/ObjectArray.cpp"
     "src/ugsdk/UnrealObjects.cpp"
-    "src/ugsdk/UnrealContainers.cpp"
+    
     "src/ugsdk/UnrealTypes.cpp"
 )
 

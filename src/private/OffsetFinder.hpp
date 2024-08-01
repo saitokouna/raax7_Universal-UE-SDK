@@ -8,6 +8,7 @@ namespace OffsetFinder
     bool FindFNameConstructorWide();
     bool FindAppendString();
     bool FindProcessEventIdx();
+    bool FindConsoleCommandIdx();
 
-    SDK::SDKStatus SetupMemberOffsets();
+    SDK::Status SetupMemberOffsets();
 }

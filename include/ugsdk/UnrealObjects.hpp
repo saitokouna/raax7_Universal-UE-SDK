@@ -15,7 +15,7 @@ namespace SDK
     {
         bool Found = false;
         int32_t Flags;
-        int32_t Offset;
+        uint16_t Offset;
         uint8_t ByteMask;
     };
 }
@@ -28,7 +28,7 @@ namespace SDK
         UObject() = delete;
         ~UObject() = delete;
 
-    private:
+    protected:
         struct ArgInfo
         {
             int32_t Offset;
@@ -45,12 +45,12 @@ namespace SDK
         DECLARE_GETTER_SETTER(class UObject*, Outer);
 
     public:
-        bool HasTypeFlag(EClassCastFlags TypeFlag);
-        bool IsA(class UClass* Target);
-        bool IsDefaultObject();
+        bool HasTypeFlag(EClassCastFlags TypeFlag) const;
+        bool IsA(class UClass* Target) const;
+        bool IsDefaultObject() const;
 
-        std::string GetName();
-        std::string GetFullName();
+        std::string GetName() const;
+        std::string GetFullName() const;
 
         void ProcessEventAsNative(class UFunction* Function, void* Parms);
         void ProcessEvent(class UFunction* Function, void* Parms);
@@ -80,11 +80,11 @@ namespace SDK
 
         /** @brief Simple wrapper to automatically find the UFunction from the template parameters. For full documentation, read the original Call function. */
         template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType = void, typename... Args>
-        ReturnType Call(Args&&... args);
+        ReturnType CallAuto(Args&&... args);
 
-    private:
+    protected:
         template <int N>
-        void InitializeArgInfo(UFunction* Function, std::array<ArgInfo, N>& ArgOffsets, size_t& ParmsSize, int32_t& ReturnValueOffset, int32_t& ReturnValueSize, bool& HasReturnValue);
+        void InitializeArgInfo(UFunction* Function, std::array<ArgInfo, N>& ArgOffsets, size_t& ParmsSize, int32_t& ReturnValueOffset, int32_t& ReturnValueSize, bool& HasReturnValue) const;
     };
 
     class UField : public UObject
@@ -106,7 +106,7 @@ namespace SDK
     public:
         DECLARE_GETTER_SETTER(class UStruct*, SuperStruct);
         DECLARE_GETTER_SETTER(class UField*, Children);
-        DECLARE_GETTER_SETTER(FField*, ChildProperties);
+        DECLARE_GETTER_SETTER(FField*, ChildProperties); // May return nullptr depending if FProperties are used.
         DECLARE_GETTER_SETTER(int32_t, PropertiesSize);
         DECLARE_GETTER_SETTER(int32_t, MinAlignment);
 
@@ -115,24 +115,31 @@ namespace SDK
          * @brief Finds a child matching the specified name and EClassCastFlags.
          *
          * @param[in] Name - Target child name.
-         * @param[in] TypeFlag - Target EClassCastFlags for the child.
+         * @param[in] (optional) TypeFlag - Target EClassCastFlags for the child.
          *
          * @return A pointer to the child if found, else a nullptr.
          */
-        UField* FindMember(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+        UField* FindMember(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None) const;
 
         /**
          * @brief Finds a target property, supporting UProperties and FProperties.
          *
          * @param[in] Name - Target property name.
-         * @param[in] TypeFlag - Target property EClassCastFlags.
+         * @param[in] (optional) PropertyFlag - Target property EPropertyFlags.
          *
          * @return An instance of the PropertyInfo struct.
          */
-        PropertyInfo FindProperty(const FName& Name, EClassCastFlags TypeFlag = CASTCLASS_None);
+        PropertyInfo FindProperty(const FName& Name, EPropertyFlags PropertyFlag = CPF_None) const;
 
         /** @brief Wrapper for FindMember to find a UFunction. */
-        class UFunction* FindFunction(const FName& Name);
+        class UFunction* FindFunction(const FName& Name) const;
+    };
+
+    class UScriptStruct : public UStruct
+    {
+    public:
+        UScriptStruct() = delete;
+        ~UScriptStruct() = delete;
     };
 
     class UClass : public UStruct
@@ -153,7 +160,7 @@ namespace SDK
         ~UProperty() = delete;
 
     public:
-        bool HasPropertyFlag(EPropertyFlags PropertyFlag);
+        bool HasPropertyFlag(EPropertyFlags PropertyFlag) const;
 
     public:
         DECLARE_GETTER_SETTER(int32_t, Offset);
@@ -169,10 +176,9 @@ namespace SDK
 
     public:
         /** @return If the UBoolProperty is for a bitfield, or a native bool. */
-        bool IsNativeBool();
-
-        uint8_t GetFieldMask();
-        uint8_t GetBitIndex();
+        bool IsNativeBool() const;
+        uint8_t GetFieldMask() const;
+        uint8_t GetBitIndex() const;
     };
 
     class UEnum : public UField
@@ -182,7 +188,7 @@ namespace SDK
         ~UEnum() = delete;
 
     public:
-        TArray<TPair<FName, int64_t>> Names() const;
+        DECLARE_GETTER_SETTER(TYPE_WRAPPER(TArray<TPair<FName, int64_t>>), Names);
 
     public:
         /**
@@ -190,7 +196,7 @@ namespace SDK
          * @param Name - Target enumerator name.
          * @return The enumerator value if found, else OFFSET_NOT_FOUND.
          */
-        int64_t FindEnumerator(const FName& Name);
+        int64_t FindEnumerator(const FName& Name) const;
     };
 
     class UFunction : public UStruct
@@ -208,6 +214,17 @@ namespace SDK
         DECLARE_GETTER_SETTER(uint16_t, ParmsSize);
         DECLARE_GETTER_SETTER(uint16_t, ReturnValueOffset);
         DECLARE_GETTER_SETTER(FNativeFuncPtr, Func);
+    };
+
+    class UDataTable : public UObject
+    {
+    public:
+        UDataTable() = delete;
+        ~UDataTable() = delete;
+
+    public:
+        DECLARE_GETTER_SETTER(UScriptStruct*, RowStruct);
+        DECLARE_GETTER_SETTER(TYPE_WRAPPER(TMap<FName, uint8_t*>), RowMap);
     };
 }
 

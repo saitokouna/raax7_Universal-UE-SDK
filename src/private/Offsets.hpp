@@ -1,12 +1,8 @@
 #pragma once
-
-#include <cstdint>
-#include <ugsdk/Macros.hpp>
+#include <ugsdk/PublicOffsets.hpp>
 
 namespace SDK::Offsets
 {
-    using Offset_t = uint16_t;
-
     namespace UObject
     {
         constexpr Offset_t VFT = 0; // This will always be 0.
@@ -65,14 +61,10 @@ namespace SDK::Offsets
         inline Offset_t ReturnValueOffset = OFFSET_NOT_FOUND;
         inline Offset_t FuncOffset = OFFSET_NOT_FOUND;
     }
-
-    namespace FField
+    namespace UDataTable
     {
-        inline Offset_t FunctionFlags = OFFSET_NOT_FOUND;
-        inline Offset_t NumParms = OFFSET_NOT_FOUND;
-        inline Offset_t ParmsSize = OFFSET_NOT_FOUND;
-        inline Offset_t ReturnValueOffset = OFFSET_NOT_FOUND;
-        inline Offset_t FuncOffset = OFFSET_NOT_FOUND;
+        inline Offset_t RowStruct = OFFSET_NOT_FOUND;
+        inline Offset_t RowMap = OFFSET_NOT_FOUND;
     }
 
     namespace FMemory

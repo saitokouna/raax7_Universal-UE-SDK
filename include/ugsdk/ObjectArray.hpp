@@ -18,19 +18,17 @@ namespace SDK
     class Chunked_TUObjectArray
     {
     private:
-        friend class TUObjectArray;
-
         enum
         {
             ElementsPerChunk = 0x10000,
         };
 
-    protected:
+    private:
         static inline auto DecryptPtr = [](void* ObjPtr) -> uint8_t* {
             return reinterpret_cast<uint8_t*>(ObjPtr);
         };
 
-    protected:
+    private:
         FUObjectItem** Objects;
         uint8_t Pad_0[0x08];
         int32_t MaxElements;
@@ -38,34 +36,29 @@ namespace SDK
         int32_t MaxChunks;
         int32_t NumChunks;
 
-    protected:
+    public:
+        inline int32_t Num() const { return NumElements; }
         inline FUObjectItem** GetDecrytedObjPtr() const { return reinterpret_cast<FUObjectItem**>(DecryptPtr(Objects)); }
 
-    private:
-        int32_t Num() const { return NumElements; }
-        class FUObjectItem* IndexToObject(const int32_t Index) const;
+        class UObject* GetByIndex(const int32_t Index) const;
     };
     class Fixed_TUObjectArray
     {
     private:
-        friend class TUObjectArray;
-
-    protected:
         static inline auto DecryptPtr = [](void* ObjPtr) -> uint8_t* {
             return reinterpret_cast<uint8_t*>(ObjPtr);
         };
 
-    protected:
+    private:
         FUObjectItem* Objects;
         int32_t MaxElements;
         int32_t NumElements;
 
-    protected:
+    public:
+        inline int Num() const { return NumElements; }
         inline FUObjectItem* GetDecrytedObjPtr() const { return reinterpret_cast<FUObjectItem*>(DecryptPtr(Objects)); }
 
-    private:
-        int32_t Num() const { return NumElements; }
-        class FUObjectItem* IndexToObject(const int32_t Index) const;
+        class UObject* GetByIndex(const int32_t Index) const;
     };
 
     /** @brief Simple wrapper to support both chunked and fixed object arrays. */
@@ -76,19 +69,14 @@ namespace SDK
 
     private:
         bool m_IsChunked;
-        union
-        {
-            Chunked_TUObjectArray* m_ChunkedObjects;
-            Fixed_TUObjectArray* m_FixedObjects;
-        };
+        Chunked_TUObjectArray* m_ChunkedObjects;
+        Fixed_TUObjectArray* m_FixedObjects;
 
     public:
         int32_t Num();
-        class FUObjectItem* IndexToObject(int32_t Index);
-
-    public:
         class UObject* GetByIndex(int32_t Index);
 
+    public:
         /**
          * @brief Finds a UObject in GObjects based off of it's full name, in the Dumper-7 style path.
          *

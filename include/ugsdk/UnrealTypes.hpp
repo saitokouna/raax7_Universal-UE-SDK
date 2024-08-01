@@ -5,8 +5,152 @@
 
 namespace SDK
 {
+    class FName
+    {
+    public:
+        explicit FName(const std::string& Str)
+            : FName(Str.c_str())
+        { }
+        explicit FName(const std::wstring& Str)
+            : FName(Str.c_str())
+        { }
+        explicit FName(const char* Str);
+        explicit FName(const wchar_t* Str);
+        FName() = default;
+        ~FName() = default;
+
+    public:
+        inline bool operator==(const FName& Other) const { return ComparisonIndex == Other.ComparisonIndex; }
+        inline bool operator!=(const FName& Other) const { return ComparisonIndex != Other.ComparisonIndex; }
+        inline bool IsNone() const { return !ComparisonIndex; }
+
+    public:
+        uint32_t ComparisonIndex;
+        uint32_t Number;
+
+    public:
+        std::string GetRawString() const;
+        std::string ToString() const;
+    };
+
+    class FTextData
+    {
+    public:
+        uint8_t Pad_0[0x28];
+        class FString TextSource;
+    };
+    class FText
+    {
+    public:
+        class FTextData* TextData;
+        uint8_t Pad_8[0x10];
+
+    public:
+        const class FString& GetStringRef() const
+        {
+            return TextData->TextSource;
+        }
+        std::string ToString() const
+        {
+            return TextData->TextSource.ToString();
+        }
+    };
+
+    struct FWeakObjectPtr
+    {
+    public:
+        FWeakObjectPtr() = delete;
+        ~FWeakObjectPtr() = delete;
+
+    public:
+        int32_t ObjectIndex;
+        int32_t ObjectSerialNumber;
+
+    public:
+        class UObject* Get() const;
+        class UObject* operator->() const;
+        bool operator==(const FWeakObjectPtr& Other) const;
+        bool operator!=(const FWeakObjectPtr& Other) const;
+        bool operator==(const class UObject* Other) const;
+        bool operator!=(const class UObject* Other) const;
+    };
+    template <typename UEType>
+    class TWeakObjectPtr : public FWeakObjectPtr
+    {
+    public:
+        UEType* Get() const
+        {
+            return static_cast<UEType*>(FWeakObjectPtr::Get());
+        }
+
+        UEType* operator->() const
+        {
+            return static_cast<UEType*>(FWeakObjectPtr::Get());
+        }
+    };
+
+    struct FSoftObjectPath
+    {
+    public:
+        FName AssetPathName;
+        FString SubPathString;
+    };
+    template <typename TObjectID>
+    class TPersistentObjectPtr
+    {
+    public:
+        FWeakObjectPtr WeakPtr;
+        int32_t TagAtLastTest;
+        TObjectID ObjectID;
+
+    public:
+        class UObject* Get() const
+        {
+            return WeakPtr.Get();
+        }
+        class UObject* operator->() const
+        {
+            return WeakPtr.Get();
+        }
+    };
+
+    class FSoftObjectPtr : public TPersistentObjectPtr<FSoftObjectPath>
+    {
+    };
+    template <typename UEType>
+    class TSoftObjectPtr : public FSoftObjectPtr
+    {
+    public:
+        UEType* Get() const
+        {
+            return static_cast<UEType*>(TPersistentObjectPtr::Get());
+        }
+        UEType* operator->() const
+        {
+            return static_cast<UEType*>(TPersistentObjectPtr::Get());
+        }
+    };
+
+    template <typename UEType>
+    class TSoftClassPtr : public FSoftObjectPtr
+    {
+    public:
+        UEType* Get() const
+        {
+            return static_cast<UEType*>(TPersistentObjectPtr::Get());
+        }
+        UEType* operator->() const
+        {
+            return static_cast<UEType*>(TPersistentObjectPtr::Get());
+        }
+    };
+
     class FFieldVariant
     {
+    public:
+        FFieldVariant() = delete;
+        ~FFieldVariant() = delete;
+
     public:
         using ContainerType = union
         {
@@ -17,9 +161,12 @@ namespace SDK
         ContainerType Container;
         bool bIsUObject;
     };
-
     class FFieldClass
     {
+    public:
+        FFieldClass() = delete;
+        ~FFieldClass() = delete;
+
     public:
         FName Name;
         uint64_t Id;
@@ -28,9 +175,12 @@ namespace SDK
         uint8_t Pad_3[0x4];
         class FFieldClass* SuperClass;
     };
-
     class FField
     {
+    public:
+        FField() = delete;
+        ~FField() = delete;
+
     public:
         void** VFT;
         FFieldClass* ClassPrivate;
@@ -42,9 +192,12 @@ namespace SDK
     public:
         bool HasTypeFlag(EClassCastFlags TypeFlag) const;
     };
-
     class FProperty : public FField
     {
+    public:
+        FProperty() = delete;
+        ~FProperty() = delete;
+
     public:
         int32_t ArrayDim;
         int32_t ElementSize;
@@ -56,9 +209,12 @@ namespace SDK
     public:
         bool HasPropertyFlag(EPropertyFlags PropertyFlag) const;
     };
-
     class FBoolProperty final : public FProperty
     {
+    public:
+        FBoolProperty() = delete;
+        ~FBoolProperty() = delete;
+
     public:
         uint8_t FieldSize;
         uint8_t ByteOffset;
@@ -66,42 +222,8 @@ namespace SDK
         uint8_t FieldMask;
 
     public:
-        bool IsNativeBool() const;
-        uint8_t GetFieldMask() const;
-        uint8_t GetBitIndex() const;
-    };
-
-    struct FWeakObjectPtr
-    {
-    public:
-        int32_t ObjectIndex;
-        int32_t ObjectSerialNumber;
-
-    public:
-        FWeakObjectPtr() { Reset(); }
-        FWeakObjectPtr(const class UObject* Object) { (*this) = Object; }
-
-        void operator=(const class UObject* Object);
-        FWeakObjectPtr& operator=(const FWeakObjectPtr& Other) = default;
-        bool operator==(const FWeakObjectPtr& Other) const
-        {
-            return (ObjectIndex == Other.ObjectIndex && ObjectSerialNumber == Other.ObjectSerialNumber) /*|| (!IsValid() && !Other.IsValid())*/;
-        }
-        bool operator!=(const FWeakObjectPtr& Other) const
-        {
-            return (ObjectIndex != Other.ObjectIndex || ObjectSerialNumber != Other.ObjectSerialNumber) /*&& (IsValid() || Other.IsValid())*/;
-        }
-
-    public:
-        bool HasSameIndexAndSerialNumber(const FWeakObjectPtr& Other) const
-        {
-            return ObjectIndex == Other.ObjectIndex && ObjectSerialNumber == Other.ObjectSerialNumber;
-        }
-
-        void Reset()
-        {
-            ObjectIndex = -1;
-            ObjectSerialNumber = 0;
-        }
+        bool IsNativeBool();
+        uint8_t GetFieldMask();
+        uint8_t GetBitIndex();
     };
 }

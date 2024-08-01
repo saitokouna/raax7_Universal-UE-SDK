@@ -10,6 +10,12 @@
 
 namespace SDK
 {
+    template <typename T>
+    struct is_writable_pointer
+    {
+        static constexpr bool value = std::is_pointer_v<T> && !std::is_const_v<std::remove_pointer_t<T>> && !std::is_volatile_v<std::remove_pointer_t<T>>;
+    };
+
     template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType, typename... Args>
     ReturnType UObject::Call(UFunction* Function, Args&&... args)
     {
@@ -58,11 +64,22 @@ namespace SDK
             auto WriteOutputArg = [Parms](auto& Arg, ArgInfo& Info) {
                 using ArgType = std::decay_t<decltype(Arg)>;
 
-                if constexpr (!std::is_void_v<std::remove_pointer_t<ArgType>> && std::is_pointer_v<ArgType>) {
-                    if (Arg)
+                constexpr bool IsWritable = is_writable_pointer<ArgType>::value;
+                constexpr bool IsVoidPtr = std::is_pointer_v<ArgType> && !std::is_void_v<std::remove_pointer_t<ArgType>>;
+
+                if constexpr (!IsWritable) {
+                    throw std::invalid_argument("Output argument type is not writable!");
+                    return;
+                }
+                if constexpr (!IsVoidPtr) {
+                    throw std::invalid_argument("Output arguments are only supported via pointers!");
+                    return;
+                }
+
+                if constexpr (IsWritable && IsVoidPtr) {
+                    if (Arg) {
                         std::memcpy(Arg, Parms + Info.Offset, sizeof(*Arg));
-                    else
-                        throw std::invalid_argument("Only pointer output parameters are supported!");
+                    }
                 }
             };
 
@@ -72,7 +89,7 @@ namespace SDK
 
         if constexpr (!std::is_void_v<ReturnType>) {
             if (!HasReturnValue)
-                throw std::logic_error("Function template specifices return type, but UFunction does not contain a return value!");
+                throw std::logic_error("Function template specifies return type, but UFunction does not contain a return value!");
 
             ReturnType Return = {};
             memcpy(&Return, Parms + ReturnValueOffset, std::min<int32_t>(ReturnValueSize, sizeof(ReturnType)));
@@ -81,7 +98,7 @@ namespace SDK
     }
 
     template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType, typename... Args>
-    ReturnType UObject::Call(Args&&... args)
+    ReturnType UObject::CallAuto(Args&&... args)
     {
         static UFunction* Function = nullptr;
 
@@ -96,7 +113,7 @@ namespace SDK
     }
 
     template <int N>
-    void UObject::InitializeArgInfo(UFunction* Function, std::array<ArgInfo, N>& ArgOffsets, size_t& ParmsSize, int32_t& ReturnValueOffset, int32_t& ReturnValueSize, bool& HasReturnValue)
+    void UObject::InitializeArgInfo(UFunction* Function, std::array<ArgInfo, N>& ArgOffsets, size_t& ParmsSize, int32_t& ReturnValueOffset, int32_t& ReturnValueSize, bool& HasReturnValue) const
     {
         ParmsSize = Function->ParmsSize();
         ReturnValueOffset = Function->ReturnValueOffset();

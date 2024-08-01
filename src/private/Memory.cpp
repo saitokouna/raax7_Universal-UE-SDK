@@ -65,12 +65,12 @@ namespace SDK::Memory
     std::pair<const void*, int32_t> IterateVFT(void** VTable, const std::function<bool(std::byte* Addr)>& CallBackForEachFunc, int32_t NumFunctions, int32_t OffsetFromStart)
     {
         if (!CallBackForEachFunc)
-            return { nullptr, -1 };
+            return { nullptr, OFFSET_NOT_FOUND };
 
-        for (int i = 0; i < 0x150; i++) {
+        for (int i = 0; i < 0x250; i++) {
             std::byte* CurrentFuncAddress = reinterpret_cast<std::byte*>(VTable[i]);
 
-            if (CurrentFuncAddress == NULL || !IsInProcessRange(reinterpret_cast<uintptr_t>(CurrentFuncAddress)))
+            if (CurrentFuncAddress == nullptr || !IsInProcessRange(reinterpret_cast<uintptr_t>(CurrentFuncAddress)))
                 break;
 
             if (CallBackForEachFunc(CurrentFuncAddress))

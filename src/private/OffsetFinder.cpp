@@ -1,12 +1,13 @@
-#include <SDKStatus.hpp>
 #include <libhat.hpp>
 #include <memory>
 #include <private/Memory.hpp>
 #include <private/Offsets.hpp>
+#include <sstream>
 #include <ugsdk/FMemory.hpp>
 #include <ugsdk/FastSearch.hpp>
 #include <ugsdk/ObjectArray.hpp>
 #include <ugsdk/Settings.hpp>
+#include <ugsdk/UGSDKStatus.hpp>
 #include <ugsdk/UnrealObjects.hpp>
 
 // Most of the member offset finding is based off of https://github.com/Encryqed/Dumper-7, so credits to them.
@@ -22,6 +23,8 @@
 
 using namespace SDK::Offsets;
 
+// Variables.
+//
 namespace OffsetFinder
 {
     SDK::UObject* PlayerController = nullptr;
@@ -66,6 +69,29 @@ namespace OffsetFinder
     SDK::UFunction* GetSpectatorPawn = nullptr;
 }
 
+// Helper functions.
+//
+namespace OffsetFinder
+{
+    std::string FormatUint32(uint32_t Value)
+    {
+        std::ostringstream oss;
+
+        for (int i = 0; i < 4; ++i) {
+            uint8_t Byte = (Value >> (i * 8)) & 0xFF;
+            oss << std::format("{:02X}", Byte);
+
+            if (i < 3) {
+                oss << " ";
+            }
+        }
+
+        return oss.str();
+    }
+}
+
+// Class member offset finders.
+//
 namespace OffsetFinder
 {
     int32_t Find_UField_Next()
@@ -93,7 +119,6 @@ namespace OffsetFinder
         };
 
         if (SDK::Memory::FindOffset(ValuePair) == OFFSET_NOT_FOUND) {
-            ValuePair.clear();
             ValuePair = {
                 { Vector, SDK::GObjects->FindObjectFastInOuter("X", "Vector") },
                 { Vector4, SDK::GObjects->FindObjectFastInOuter("X", "Vector4") },
@@ -274,6 +299,8 @@ namespace OffsetFinder
     }
 }
 
+// General offset finder functions.
+//
 namespace OffsetFinder
 {
     bool FindFMemoryRealloc()
@@ -436,8 +463,32 @@ namespace OffsetFinder
         SDK::Offsets::UObject::ProcessEventIdx = FuncIdx;
         return FuncIdx != OFFSET_NOT_FOUND;
     }
+    bool FindConsoleCommandIdx()
+    {
+        SDK::UClass* PlayerControllerClass = nullptr;
+        Offset_t PlayerOffset = OFFSET_NOT_FOUND;
 
-    SDK::SDKStatus SetupMemberOffsets()
+        std::vector<SDK::FSEntry> Search = {
+            { SDK::FSUClass("PlayerController", &PlayerControllerClass) },
+            { SDK::FSProperty("PlayerController", "Player", &PlayerOffset, nullptr) }
+        };
+        if (!SDK::FastSearch(Search))
+            return false;
+
+        void** VFT = PlayerControllerClass->ClassDefaultObject()->VFT;
+
+        auto Sig = hat::parse_signature(std::format("40 53 48 83 EC 20 48 8B 89 {} 48 8B DA 48 85 C9", FormatUint32(PlayerOffset)));
+        auto IsConsoleCommand = [&](std::byte* FuncAddress) -> bool {
+            return SDK::Memory::FindPatternInRange(FuncAddress, FuncAddress + 0x100, Sig.value());
+        };
+
+        auto [FuncPtr, FuncIdx] = SDK::Memory::IterateVFT(VFT, IsConsoleCommand);
+
+        SDK::Offsets::PlayerController::ConsoleCommandIdx = FuncIdx;
+        return FuncIdx != OFFSET_NOT_FOUND;
+    }
+
+    SDK::Status SetupMemberOffsets()
     {
         std::vector<SDK::FSEntry> Search = {
             { SDK::FSUObject("PlayerController", &PlayerController) },
@@ -469,56 +520,64 @@ namespace OffsetFinder
             { SDK::FSUObject("ETraceTypeQuery", &ETraceTypeQuery) }
         };
         if (!SDK::FastSearch(Search))
-            return SDK::SDK_FAILED_FASTSEARCH_PASS1;
+            return SDK::Status::FastSearchPass1;
 
         // The order of the functions below is very important as there is a dependency chain.
         // Do not change the order.
 
-        GET_OFFSET(Find_UStruct_Children, UStruct::Children, SDK::SDK_FAILED_USRTUCT_CHILDREN);
-        GET_OFFSET(Find_UField_Next, UField::Next, SDK::SDK_FAILED_UFIELD_NEXT);
-        GET_OFFSET(Find_UStruct_SuperStruct, UStruct::SuperStruct, SDK::SDK_FAILED_USRTUCT_SUPERSTRUCT);
-        GET_OFFSET(Find_UStruct_PropertiesSize, UStruct::PropertiesSize, SDK::SDK_FAILED_USRTUCT_PROPERTIESSIZE);
-        GET_OFFSET(Find_UStruct_MinAlignment, UStruct::MinAlignment, SDK::SDK_FAILED_USRTUCT_MINALIGNMENT);
-        GET_OFFSET(Find_UClass_ClassCastFlags, UClass::ClassCastFlags, SDK::SDK_FAILED_UCLASS_CLASSCASTFLAGS);
+        GET_OFFSET(Find_UStruct_Children, UStruct::Children, SDK::Status::UStruct_Children);
+        GET_OFFSET(Find_UField_Next, UField::Next, SDK::Status::UField_Next);
+        GET_OFFSET(Find_UStruct_SuperStruct, UStruct::SuperStruct, SDK::Status::UStruct_SuperStruct);
+        GET_OFFSET(Find_UStruct_PropertiesSize, UStruct::PropertiesSize, SDK::Status::UStruct_PropertiesSize);
+        GET_OFFSET(Find_UStruct_MinAlignment, UStruct::MinAlignment, SDK::Status::UStrct_MinAlignment);
+        GET_OFFSET(Find_UClass_ClassCastFlags, UClass::ClassCastFlags, SDK::Status::UClass_ClassCastFlags);
 
         // In order to do the second pass, we required UClass::CastFlags.
 
-        Search.clear();
         Search = {
             { SDK::FSUFunction("PlayerController", "WasInputKeyJustPressed", &WasInputKeyJustPressed) },
             { SDK::FSUFunction("PlayerController", "ToggleSpeaking", &ToggleSpeaking) },
             { SDK::FSUFunction("PlayerController", "SwitchLevel", &SwitchLevel) },
             { SDK::FSUFunction("PlayerController", "SetViewTargetWithBlend", &SetViewTargetWithBlend) },
             { SDK::FSUFunction("PlayerController", "SetHapticsByValue", &SetHapticsByValue) },
-            { SDK::FSUFunction("KismetSystemLibrary", "SphereTraceSingleForObjects", &SphereTraceSingleForObjects) },
-            { SDK::FSUFunction("Actor", "WasRecentlyRendered", &WasRecentlyRendered) },
-            { SDK::FSUFunction("KismetMathLibrary", "CrossProduct2D", &CrossProduct2D) },
             { SDK::FSUFunction("PlayerController", "GetSpectatorPawn", &GetSpectatorPawn) },
+            { SDK::FSUFunction("KismetSystemLibrary", "SphereTraceSingleForObjects", &SphereTraceSingleForObjects) },
+            { SDK::FSUFunction("KismetMathLibrary", "CrossProduct2D", &CrossProduct2D) },
+            { SDK::FSUFunction("Actor", "WasRecentlyRendered", &WasRecentlyRendered) },
         };
         if (!SDK::FastSearch(Search))
-            return SDK::SDK_FAILED_FASTSEARCH_PASS2;
+            return SDK::Status::FastSearchPass2;
 
-        GET_OFFSET(Find_UEnum_Names, UEnum::Names, SDK::SDK_FAILED_UENUM_NAMES);
+        GET_OFFSET(Find_UEnum_Names, UEnum::Names, SDK::Status::UEnum_Names);
 
-        GET_OFFSET(Find_UFunction_FunctionFlags, UFunction::FunctionFlags, SDK::SDK_FAILED_UFUNCTION_FUNCTIONFLAGS);
-        GET_OFFSET(Find_UFunction_NumParms, UFunction::NumParms, SDK::SDK_FAILED_UFUNCTION_NUMPARMS);
-        GET_OFFSET(Find_UFunction_ParmsSize, UFunction::ParmsSize, SDK::SDK_FAILED_UFUNCTION_PARMSSIZE);
-        GET_OFFSET(Find_UFunction_ReturnValueOffset, UFunction::ReturnValueOffset, SDK::SDK_FAILED_UFUNCTION_RETURNVALUEOFFSET);
-        GET_OFFSET(Find_UFunction_Func, UFunction::FuncOffset, SDK::SDK_FAILED_UFUNCTION_FUNCOFFSET);
+        GET_OFFSET(Find_UFunction_FunctionFlags, UFunction::FunctionFlags, SDK::Status::UFunction_FunctionFlags);
+        GET_OFFSET(Find_UFunction_NumParms, UFunction::NumParms, SDK::Status::UFunction_NumParms);
+        GET_OFFSET(Find_UFunction_ParmsSize, UFunction::ParmsSize, SDK::Status::UFunction_ParmsSize);
+        GET_OFFSET(Find_UFunction_ReturnValueOffset, UFunction::ReturnValueOffset, SDK::Status::UFunction_ReturnValueOffset);
+        GET_OFFSET(Find_UFunction_Func, UFunction::FuncOffset, SDK::Status::UFunction_FuncOffset);
 
         if (SDK::Settings::UsesFProperty) {
-            GET_OFFSET(Find_UStruct_ChildProperties, UStruct::ChildProperties, SDK::SDK_FAILED_USRTUCT_CHILDPROPERTIES);
+            GET_OFFSET(Find_UStruct_ChildProperties, UStruct::ChildProperties, SDK::Status::UStruct_ChildProperties);
         }
         else {
-            GET_OFFSET(Find_UProperty_Offset, UProperty::Offset, SDK::SDK_FAILED_UPROPERTY_OFFSET);
-            GET_OFFSET(Find_UProperty_ElementSize, UProperty::ElementSize, SDK::SDK_FAILED_UPROPERTY_ELEMENTSIZE);
-            GET_OFFSET(Find_UProperty_PropertyFlags, UProperty::PropertyFlags, SDK::SDK_FAILED_UPROPERTY_PROPERTYFLAGS);
-            GET_OFFSET(Find_UBoolProperty_Base, UBoolProperty::Base, SDK::SDK_FAILED_UBOOLPROPERTY_BASE);
+            GET_OFFSET(Find_UProperty_Offset, UProperty::Offset, SDK::Status::UProperty_Offset);
+            GET_OFFSET(Find_UProperty_ElementSize, UProperty::ElementSize, SDK::Status::UProperty_ElementSize);
+            GET_OFFSET(Find_UProperty_PropertyFlags, UProperty::PropertyFlags, SDK::Status::UProperty_PropertyFlags);
+            GET_OFFSET(Find_UBoolProperty_Base, UBoolProperty::Base, SDK::Status::UBoolProperty_Base);
         }
 
-        GET_OFFSET(Find_UClass_ClassDefaultObject, UClass::ClassDefaultObject, SDK::SDK_FAILED_UCLASS_CLASSDEFAULTOBJECT);
+        GET_OFFSET(Find_UClass_ClassDefaultObject, UClass::ClassDefaultObject, SDK::Status::UClass_ClassDefaultObject);
+
+        Search = {
+            { SDK::FSProperty("DataTable", "RowStruct", &UDataTable::RowStruct, nullptr) }
+        };
+        if (!SDK::FastSearch(Search))
+            return SDK::Status::FastSearchPass3;
+
+        // In every version I've tested, this is correct.
+        UDataTable::RowMap = UDataTable::RowStruct + 0x8;
 
         SDK::Settings::SetupMemberOffsets = true;
-        return SDK::SDK_SUCCESS;
+        return SDK::Status::Success;
     }
 }

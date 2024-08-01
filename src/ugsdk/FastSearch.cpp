@@ -11,7 +11,7 @@ namespace SDK
         // We require all of these functionalities.
         if (!Settings::SetupFMemory || !Settings::SetupGObjects || !Settings::SetupAppendString)
             return false;
-        
+
         for (int i = 0; (i < GObjects->Num()) && SearchList.size(); i++) {
             UObject* Obj = GObjects->GetByIndex(i);
             if (!Obj)
@@ -29,24 +29,7 @@ namespace SDK
                     }
                     break;
                 }
-                case FS_UPROPERTY: {
-                    if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || Obj->Name() != It->Property.ClassName)
-                        break;
-
-                    SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
-                    PropertyInfo Info = ObjStruct->FindProperty(It->Property.PropertyName);
-                    if (!Info.Found)
-                        break;
-
-                    if (It->Property.OutOffset)
-                        *It->Property.OutOffset = Info.Offset;
-                    if (It->Property.OutMask)
-                        *It->Property.OutMask = Info.ByteMask;
-
-                    Found = true;
-                    break;
-                }
-                case FS_ENUM: {
+                case FS_UENUM: {
                     if (!Obj->HasTypeFlag(CASTCLASS_UEnum) || Obj->Name() != It->Enum.EnumName)
                         break;
 
@@ -73,6 +56,23 @@ namespace SDK
                         break;
 
                     *It->Function.OutFunction = Function;
+
+                    Found = true;
+                    break;
+                }
+                case FS_PROPERTY: {
+                    if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || Obj->Name() != It->Property.ClassName)
+                        break;
+
+                    SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
+                    PropertyInfo Info = ObjStruct->FindProperty(It->Property.PropertyName);
+                    if (!Info.Found)
+                        break;
+
+                    if (It->Property.OutOffset)
+                        *It->Property.OutOffset = Info.Offset;
+                    if (It->Property.OutMask)
+                        *It->Property.OutMask = Info.ByteMask;
 
                     Found = true;
                     break;

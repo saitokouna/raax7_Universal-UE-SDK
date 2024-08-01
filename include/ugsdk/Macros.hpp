@@ -4,9 +4,11 @@
 
 #define OFFSET_NOT_FOUND -1
 
+#define TYPE_WRAPPER(...) __VA_ARGS__
+
 #define DECLARE_GETTER_SETTER(Type, Member) \
     Type Member() const;                    \
-    void Member(Type value);
+    void Member(Type Value);
 
 #define DEFINE_GETTER_SETTER(Class, Type, Member, Offset) \
     Type Class::Member() const                            \

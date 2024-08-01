@@ -1,28 +1,34 @@
-#include <SDK.hpp>
+#include <UGSDK.hpp>
 #include <private/OffsetFinder.hpp>
 
 namespace SDK
 {
-    SDKStatus Init()
+    Status Init()
     {
         if (!OffsetFinder::FindFMemoryRealloc())
-            return SDK_FAILED_FMEMORY_REALLOC;
+            return Status::FMemoryRealloc;
 
         if (!OffsetFinder::FindGObjects())
-            return SDK_FAILED_GOBJECTS;
+            return Status::GObjects;
 
         if (!OffsetFinder::FindFNameConstructorNarrow())
-            return SDK_FAILED_FNAMECONSTRUCTOR_NARROW;
+            return Status::NarrowFNameConstructor;
 
         if (!OffsetFinder::FindFNameConstructorWide())
-            return SDK_FAILED_FNAMECONSTRUCTOR_WIDE;
+            return Status::WideFNameConstructor;
 
         if (!OffsetFinder::FindAppendString())
-            return SDK_FAILED_APPENDSTRING;
+            return Status::AppendString;
 
-        if (const auto Status = OffsetFinder::SetupMemberOffsets(); Status != SDK_SUCCESS)
+        if (const auto Status = OffsetFinder::SetupMemberOffsets(); Status != Status::Success)
             return Status;
 
-        return OffsetFinder::FindProcessEventIdx() ? SDK_SUCCESS : SDK_FAILED_PROCESSEVENTIDX;
+        if (!OffsetFinder::FindConsoleCommandIdx())
+            return Status::ConsoleCommand;
+
+        if (!OffsetFinder::FindProcessEventIdx())
+            return Status::ProcessEvent;
+
+        return Status::Success;
     }
 }

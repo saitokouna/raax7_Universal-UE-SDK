@@ -8,16 +8,16 @@ namespace SDK
     template <size_t N>
     struct StringLiteral
     {
-        char String[N];
+        char Value[N];
 
-        consteval StringLiteral(const char (&str)[N])
+        constexpr StringLiteral(const char (&Str)[N])
         {
-            std::copy_n(str, N, String);
+            std::copy_n(Str, N, Value);
         }
 
-        consteval const char* c_str() const
+        constexpr const char* c_str() const
         {
-            return String;
+            return Value;
         }
     };
 }

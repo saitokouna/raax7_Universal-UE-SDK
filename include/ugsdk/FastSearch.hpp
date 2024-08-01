@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ugsdk/UnrealContainers.hpp>
+#include <ugsdk/UnrealTypes.hpp>
 #include <ugsdk/UnrealEnums.hpp>
 #include <vector>
 
@@ -36,30 +36,6 @@ namespace SDK
     };
 
     /**
-     * @brief Used to find a property member of a UClass.
-     *
-     * @param[in] ClassName - Name of the target UClass.
-     * @param[in] PropertyName - Name of the target property.
-     * @param[in,out] (optional) OutOffset - Pointer to the output offset, no value is written if unfound.
-     * @param[in,out] (optional) OutMask - Pointer to the output bitmask, no value is written if unfound or unsupported on property type.
-     */
-    struct FSUProperty
-    {
-        FName ClassName;
-        FName PropertyName;
-        uint32_t* OutOffset;
-        uint8_t* OutMask;
-
-        explicit FSUProperty(const std::string& ClassName, const std::string& PropertyName, uint32_t* OutOffset, uint8_t* OutMask)
-            : ClassName(FName(ClassName))
-            , PropertyName(FName(PropertyName))
-            , OutOffset(OutOffset)
-            , OutMask(OutMask)
-        {
-        }
-    };
-
-    /**
      * @brief Used to find a UFunction member of a UClass.
      *
      * @param[in] ClassName - Name of the target UClass.
@@ -88,21 +64,21 @@ namespace SDK
      * @param[in,out] (optional) OutEnumeratorValue - Pointer to the output enumerator value, no value is written if unfound.
      * @param[in,out] (optional) OutEnum - Pointer to the output UEnum*, no value is written if unfound.
      */
-    struct FSEnum
+    struct FSUEnum
     {
         FName EnumName;
         FName EnumeratorName;
         int64_t* OutEnumeratorValue;
         class UEnum** OutEnum;
 
-        explicit FSEnum(const std::string& EnumName, const std::string& EnumeratorName, int64_t* OutEnumeratorValue, class UEnum** OutEnum)
+        explicit FSUEnum(const std::string& EnumName, const std::string& EnumeratorName, int64_t* OutEnumeratorValue, class UEnum** OutEnum)
             : EnumName(FName(EnumName))
             , EnumeratorName(FName(EnumeratorName))
             , OutEnumeratorValue(OutEnumeratorValue)
             , OutEnum(OutEnum)
         {
         }
-        explicit FSEnum(const std::string& EnumName, const std::string& EnumeratorName, int64_t* OutEnumeratorValue)
+        explicit FSUEnum(const std::string& EnumName, const std::string& EnumeratorName, int64_t* OutEnumeratorValue)
             : EnumName(FName(EnumName))
             , EnumeratorName(FName(EnumeratorName))
             , OutEnumeratorValue(OutEnumeratorValue)
@@ -111,13 +87,37 @@ namespace SDK
         }
     };
 
+    /**
+     * @brief Used to find a property member of a UClass.
+     *
+     * @param[in] ClassName - Name of the target UClass.
+     * @param[in] PropertyName - Name of the target property.
+     * @param[in,out] (optional) OutOffset - Pointer to the output offset, no value is written if unfound.
+     * @param[in,out] (optional) OutMask - Pointer to the output bitmask, no value is written if unfound or unsupported on property type.
+     */
+    struct FSProperty
+    {
+        FName ClassName;
+        FName PropertyName;
+        uint16_t* OutOffset;
+        uint8_t* OutMask;
+
+        explicit FSProperty(const std::string& ClassName, const std::string& PropertyName, uint16_t* OutOffset, uint8_t* OutMask)
+            : ClassName(FName(ClassName))
+            , PropertyName(FName(PropertyName))
+            , OutOffset(OutOffset)
+            , OutMask(OutMask)
+        {
+        }
+    };
+
     /** @brief Internal use only. Refer to other structs prefixed with FS. */
     enum FSType
     {
         FS_UOBJECT,
-        FS_UPROPERTY,
-        FS_ENUM,
+        FS_UENUM,
         FS_UFUNCTION,
+        FS_PROPERTY,
     };
 
     /** @brief Internal use only. Refer to other structs prefixed with FS. */
@@ -127,8 +127,8 @@ namespace SDK
         union
         {
             struct FSUObject Object;
-            struct FSUProperty Property;
-            struct FSEnum Enum;
+            struct FSProperty Property;
+            struct FSUEnum Enum;
             struct FSUFunction Function;
         };
 
@@ -137,19 +137,19 @@ namespace SDK
             , Object(Object)
         {
         }
-        FSEntry(const FSUProperty& Property)
-            : Type(FS_UPROPERTY)
-            , Property(Property)
-        {
-        }
-        FSEntry(const FSEnum& Enum)
-            : Type(FS_ENUM)
+        FSEntry(const FSUEnum& Enum)
+            : Type(FS_UENUM)
             , Enum(Enum)
         {
         }
         FSEntry(const FSUFunction& Function)
             : Type(FS_UFUNCTION)
             , Function(Function)
+        {
+        }
+        FSEntry(const FSProperty& Property)
+            : Type(FS_PROPERTY)
+            , Property(Property)
         {
         }
     };
