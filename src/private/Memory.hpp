@@ -1,9 +1,8 @@
 #pragma once
-
+#include <uesdk/Macros.hpp>
+#include <libhat.hpp>
 #include <Windows.h>
 #include <functional>
-#include <libhat.hpp>
-#include <ugsdk/Macros.hpp>
 #include <vector>
 
 // Credit to https://github.com/Encryqed/Dumper-7 for the FindOffset and GetValidPointerOffset function.

@@ -1,7 +1,7 @@
 #pragma once
 
 /** @brief This namespace is managed by the library. Do not write to any values. */
-namespace SDK::Settings
+namespace SDK::State
 {
     inline bool UsesChunkedGObjects = true;
     inline bool UsesFProperty = false;

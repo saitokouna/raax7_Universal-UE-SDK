@@ -1,13 +1,12 @@
 #pragma once
-
+#include <uesdk/Macros.hpp>
+#include <uesdk/UnrealContainers.hpp>
+#include <uesdk/UnrealEnums.hpp>
+#include <uesdk/UnrealTypes.hpp>
+#include <uesdk/Utils.hpp>
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <ugsdk/Macros.hpp>
-#include <ugsdk/UnrealContainers.hpp>
-#include <ugsdk/UnrealEnums.hpp>
-#include <ugsdk/UnrealTypes.hpp>
-#include <ugsdk/Utils.hpp>
 
 namespace SDK
 {
@@ -228,4 +227,4 @@ namespace SDK
     };
 }
 
-#include <ugsdk/UnrealObjects.inl>
+#include <uesdk/UnrealObjects.inl>

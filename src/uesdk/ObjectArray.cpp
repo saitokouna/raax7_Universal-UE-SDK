@@ -1,6 +1,6 @@
+#include <uesdk/ObjectArray.hpp>
+#include <uesdk/UnrealObjects.hpp>
 #include <cstdint>
-#include <ugsdk/ObjectArray.hpp>
-#include <ugsdk/UnrealObjects.hpp>
 
 namespace SDK
 {

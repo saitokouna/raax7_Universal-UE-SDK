@@ -1,15 +1,15 @@
-#include <ugsdk/FastSearch.hpp>
-#include <ugsdk/ObjectArray.hpp>
-#include <ugsdk/Settings.hpp>
-#include <ugsdk/UnrealContainers.hpp>
-#include <ugsdk/UnrealObjects.hpp>
+#include <uesdk/FastSearch.hpp>
+#include <uesdk/ObjectArray.hpp>
+#include <uesdk/State.hpp>
+#include <uesdk/UnrealContainers.hpp>
+#include <uesdk/UnrealObjects.hpp>
 
 namespace SDK
 {
     bool FastSearch(std::vector<FSEntry>& SearchList)
     {
         // We require all of these functionalities.
-        if (!Settings::SetupFMemory || !Settings::SetupGObjects || !Settings::SetupAppendString)
+        if (!State::SetupFMemory || !State::SetupGObjects || !State::SetupAppendString)
             return false;
 
         for (int i = 0; (i < GObjects->Num()) && SearchList.size(); i++) {

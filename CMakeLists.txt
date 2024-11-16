@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(UGSDK)
+project(UESDK)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,30 +7,29 @@ set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(dependencies/libhat)
 
-set(UGSDK_SRC
-    "src/SDK.cpp"
+set(UESDK_SRC
+    "src/UESDK.cpp"
     "src/private/Memory.cpp"
     "src/private/OffsetFinder.cpp"
-    "src/ugsdk/FastSearch.cpp"
-    "src/ugsdk/FMemory.cpp"
-    "src/ugsdk/ObjectArray.cpp"
-    "src/ugsdk/UnrealObjects.cpp"
-    
-    "src/ugsdk/UnrealTypes.cpp"
+    "src/uesdk/FastSearch.cpp"
+    "src/uesdk/FMemory.cpp"
+    "src/uesdk/ObjectArray.cpp"
+    "src/uesdk/UnrealObjects.cpp"
+    "src/uesdk/UnrealTypes.cpp"
 )
 
-add_library(UGSDK STATIC ${UGSDK_SRC})
+add_library(UESDK STATIC ${UESDK_SRC})
 
-target_include_directories(UGSDK PRIVATE
+target_include_directories(UESDK PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_include_directories(UGSDK PUBLIC
+target_include_directories(UESDK PUBLIC
     dependencies/libhat/include
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
     $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(UGSDK PUBLIC
+target_link_libraries(UESDK PUBLIC
     libhat
 )

@@ -1,5 +1,5 @@
 #include <private/Offsets.hpp>
-#include <ugsdk/FMemory.hpp>
+#include <uesdk/FMemory.hpp>
 
 namespace SDK::FMemory
 {

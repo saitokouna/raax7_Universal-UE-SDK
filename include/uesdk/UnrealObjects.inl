@@ -1,12 +1,10 @@
 #pragma once
-
-#include <Windows.h>
+#include <uesdk/FastSearch.hpp>
+#include <uesdk/State.hpp>
+#include <uesdk/UnrealObjects.hpp>
 #include <algorithm>
 #include <array>
 #include <format>
-#include <ugsdk/FastSearch.hpp>
-#include <ugsdk/Settings.hpp>
-#include <ugsdk/UnrealObjects.hpp>
 
 namespace SDK
 {
@@ -44,7 +42,7 @@ namespace SDK
         if (!Parms)
             throw std::bad_alloc();
 
-        ZeroMemory(Parms, ParmsSize);
+        memset(Parms, 0, ParmsSize);
 
         // Write input arguments to the parameter buffer.
         {
@@ -120,7 +118,7 @@ namespace SDK
         HasReturnValue = ReturnValueOffset != UINT16_MAX;
 
         int ArgIndex = 0;
-        if (Settings::UsesFProperty) {
+        if (State::UsesFProperty) {
             for (FField* Field = Function->ChildProperties(); Field; Field = Field->Next) {
                 if (!Field->HasTypeFlag(CASTCLASS_FProperty))
                     continue;

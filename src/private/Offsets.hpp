@@ -1,8 +1,11 @@
 #pragma once
-#include <ugsdk/PublicOffsets.hpp>
+#include <uesdk/Macros.hpp>
+#include <cstdint>
 
 namespace SDK::Offsets
 {
+    using Offset_t = uint16_t;
+
     namespace UObject
     {
         constexpr Offset_t VFT = 0; // This will always be 0.

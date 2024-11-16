@@ -1,6 +1,7 @@
 #pragma once
+#include <uesdk/UESDKStatus.hpp>
 
-namespace OffsetFinder
+namespace SDK::OffsetFinder
 {
     bool FindFMemoryRealloc();
     bool FindGObjects();
@@ -8,7 +9,6 @@ namespace OffsetFinder
     bool FindFNameConstructorWide();
     bool FindAppendString();
     bool FindProcessEventIdx();
-    bool FindConsoleCommandIdx();
 
-    SDK::Status SetupMemberOffsets();
+    Status SetupMemberOffsets();
 }

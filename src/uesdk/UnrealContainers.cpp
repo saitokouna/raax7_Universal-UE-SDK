@@ -1,6 +1,6 @@
 #include <private/Offsets.hpp>
+#include <uesdk/UnrealContainers.hpp>
 #include <string>
-#include <ugsdk/UnrealContainers.hpp>
 
 namespace SDK
 {

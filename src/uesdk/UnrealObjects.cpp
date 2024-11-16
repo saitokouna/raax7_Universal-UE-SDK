@@ -1,42 +1,42 @@
 #pragma once
 #include <private/Offsets.hpp>
-#include <ugsdk/Settings.hpp>
-#include <ugsdk/UnrealContainers.hpp>
-#include <ugsdk/UnrealObjects.hpp>
+#include <uesdk/State.hpp>
+#include <uesdk/UnrealContainers.hpp>
+#include <uesdk/UnrealObjects.hpp>
 
 namespace SDK
 {
-    DEFINE_GETTER_SETTER(UObject, int32_t, Flags, SDK::Offsets::UObject::Flags)
-    DEFINE_GETTER_SETTER(UObject, int32_t, Index, SDK::Offsets::UObject::Index)
-    DEFINE_GETTER_SETTER(UObject, UClass*, Class, SDK::Offsets::UObject::Class)
-    DEFINE_GETTER_SETTER(UObject, FName, Name, SDK::Offsets::UObject::Name)
-    DEFINE_GETTER_SETTER(UObject, UObject*, Outer, SDK::Offsets::UObject::Outer)
+    DEFINE_GETTER_SETTER(UObject, int32_t, Flags, Offsets::UObject::Flags)
+    DEFINE_GETTER_SETTER(UObject, int32_t, Index, Offsets::UObject::Index)
+    DEFINE_GETTER_SETTER(UObject, UClass*, Class, Offsets::UObject::Class)
+    DEFINE_GETTER_SETTER(UObject, FName, Name, Offsets::UObject::Name)
+    DEFINE_GETTER_SETTER(UObject, UObject*, Outer, Offsets::UObject::Outer)
 
-    DEFINE_GETTER_SETTER(UField, UField*, Next, SDK::Offsets::UField::Next);
+    DEFINE_GETTER_SETTER(UField, UField*, Next, Offsets::UField::Next);
 
-    DEFINE_GETTER_SETTER(UStruct, UStruct*, SuperStruct, SDK::Offsets::UStruct::SuperStruct);
-    DEFINE_GETTER_SETTER(UStruct, UField*, Children, SDK::Offsets::UStruct::Children);
-    DEFINE_GETTER_SETTER(UStruct, FField*, ChildProperties, SDK::Offsets::UStruct::ChildProperties);
-    DEFINE_GETTER_SETTER(UStruct, int32_t, PropertiesSize, SDK::Offsets::UStruct::PropertiesSize);
-    DEFINE_GETTER_SETTER(UStruct, int32_t, MinAlignment, SDK::Offsets::UStruct::MinAlignment);
+    DEFINE_GETTER_SETTER(UStruct, UStruct*, SuperStruct, Offsets::UStruct::SuperStruct);
+    DEFINE_GETTER_SETTER(UStruct, UField*, Children, Offsets::UStruct::Children);
+    DEFINE_GETTER_SETTER(UStruct, FField*, ChildProperties, Offsets::UStruct::ChildProperties);
+    DEFINE_GETTER_SETTER(UStruct, int32_t, PropertiesSize, Offsets::UStruct::PropertiesSize);
+    DEFINE_GETTER_SETTER(UStruct, int32_t, MinAlignment, Offsets::UStruct::MinAlignment);
 
-    DEFINE_GETTER_SETTER(UClass, EClassCastFlags, ClassCastFlags, SDK::Offsets::UClass::ClassCastFlags);
-    DEFINE_GETTER_SETTER(UClass, UObject*, ClassDefaultObject, SDK::Offsets::UClass::ClassDefaultObject);
+    DEFINE_GETTER_SETTER(UClass, EClassCastFlags, ClassCastFlags, Offsets::UClass::ClassCastFlags);
+    DEFINE_GETTER_SETTER(UClass, UObject*, ClassDefaultObject, Offsets::UClass::ClassDefaultObject);
 
-    DEFINE_GETTER_SETTER(UProperty, int32_t, Offset, SDK::Offsets::UProperty::Offset);
-    DEFINE_GETTER_SETTER(UProperty, int32_t, ElementSize, SDK::Offsets::UProperty::ElementSize);
-    DEFINE_GETTER_SETTER(UProperty, EPropertyFlags, PropertyFlags, SDK::Offsets::UProperty::PropertyFlags);
+    DEFINE_GETTER_SETTER(UProperty, int32_t, Offset, Offsets::UProperty::Offset);
+    DEFINE_GETTER_SETTER(UProperty, int32_t, ElementSize, Offsets::UProperty::ElementSize);
+    DEFINE_GETTER_SETTER(UProperty, EPropertyFlags, PropertyFlags, Offsets::UProperty::PropertyFlags);
 
-    DEFINE_GETTER_SETTER(UEnum, TYPE_WRAPPER(TArray<TPair<FName, int64_t>>), Names, SDK::Offsets::UEnum::Names);
+    DEFINE_GETTER_SETTER(UEnum, TYPE_WRAPPER(TArray<TPair<FName, int64_t>>), Names, Offsets::UEnum::Names);
 
-    DEFINE_GETTER_SETTER(UFunction, EFunctionFlags, FunctionFlags, SDK::Offsets::UFunction::FunctionFlags);
-    DEFINE_GETTER_SETTER(UFunction, uint8_t, NumParms, SDK::Offsets::UFunction::NumParms);
-    DEFINE_GETTER_SETTER(UFunction, uint16_t, ParmsSize, SDK::Offsets::UFunction::ParmsSize);
-    DEFINE_GETTER_SETTER(UFunction, uint16_t, ReturnValueOffset, SDK::Offsets::UFunction::ReturnValueOffset);
-    DEFINE_GETTER_SETTER(UFunction, UFunction::FNativeFuncPtr, Func, SDK::Offsets::UFunction::FuncOffset);
+    DEFINE_GETTER_SETTER(UFunction, EFunctionFlags, FunctionFlags, Offsets::UFunction::FunctionFlags);
+    DEFINE_GETTER_SETTER(UFunction, uint8_t, NumParms, Offsets::UFunction::NumParms);
+    DEFINE_GETTER_SETTER(UFunction, uint16_t, ParmsSize, Offsets::UFunction::ParmsSize);
+    DEFINE_GETTER_SETTER(UFunction, uint16_t, ReturnValueOffset, Offsets::UFunction::ReturnValueOffset);
+    DEFINE_GETTER_SETTER(UFunction, UFunction::FNativeFuncPtr, Func, Offsets::UFunction::FuncOffset);
 
-    DEFINE_GETTER_SETTER(UDataTable, UScriptStruct*, RowStruct, SDK::Offsets::UDataTable::RowStruct);
-    DEFINE_GETTER_SETTER(UDataTable, TYPE_WRAPPER(TMap<FName, uint8_t*>), RowMap, SDK::Offsets::UDataTable::RowMap);
+    DEFINE_GETTER_SETTER(UDataTable, UScriptStruct*, RowStruct, Offsets::UDataTable::RowStruct);
+    DEFINE_GETTER_SETTER(UDataTable, TYPE_WRAPPER(TMap<FName, uint8_t*>), RowMap, Offsets::UDataTable::RowMap);
 
     bool UObject::HasTypeFlag(EClassCastFlags TypeFlag) const
     {
@@ -95,7 +95,7 @@ namespace SDK
 
     UField* UStruct::FindMember(const FName& Name, EClassCastFlags TypeFlag) const
     {
-        for (SDK::UField* Child = Children(); Child; Child = Child->Next()) {
+        for (UField* Child = Children(); Child; Child = Child->Next()) {
             if (Child->HasTypeFlag(TypeFlag) && Child->Name() == Name)
                 return Child;
         }
@@ -106,7 +106,7 @@ namespace SDK
     {
         PropertyInfo Result = { .Found = false };
 
-        if (SDK::Settings::UsesFProperty) {
+        if (State::UsesFProperty) {
             for (FField* Field = ChildProperties(); Field; Field = Field->Next) {
                 if (!Field->HasTypeFlag(CASTCLASS_FProperty))
                     continue;
@@ -175,7 +175,7 @@ namespace SDK
     }
     uint8_t UBoolProperty::GetFieldMask() const
     {
-        return reinterpret_cast<SDK::Offsets::UBoolProperty::UBoolPropertyBase*>((uintptr_t)this + SDK::Offsets::UBoolProperty::Base)->FieldMask;
+        return reinterpret_cast<Offsets::UBoolProperty::UBoolPropertyBase*>((uintptr_t)this + Offsets::UBoolProperty::Base)->FieldMask;
     }
     uint8_t UBoolProperty::GetBitIndex() const
     {

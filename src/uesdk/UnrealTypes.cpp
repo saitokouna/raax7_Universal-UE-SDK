@@ -1,5 +1,5 @@
-#include <ugsdk/UnrealTypes.hpp>
-#include <ugsdk/ObjectArray.hpp>
+#include <uesdk/UnrealTypes.hpp>
+#include <uesdk/ObjectArray.hpp>
 #include <private/Offsets.hpp>
 
 namespace SDK

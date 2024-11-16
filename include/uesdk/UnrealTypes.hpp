@@ -1,7 +1,6 @@
 #pragma once
-
-#include <ugsdk/UnrealContainers.hpp>
-#include <ugsdk/UnrealEnums.hpp>
+#include <uesdk/UnrealContainers.hpp>
+#include <uesdk/UnrealEnums.hpp>
 
 namespace SDK
 {

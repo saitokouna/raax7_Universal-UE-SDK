@@ -1,9 +1,8 @@
 #pragma once
-
+#include <uesdk/UnrealEnums.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <ugsdk/UnrealEnums.hpp>
 
 namespace SDK
 {
@@ -129,4 +128,4 @@ namespace SDK
     inline std::unique_ptr<TUObjectArray> GObjects = nullptr;
 }
 
-#include <ugsdk/ObjectArray.inl>
+#include <uesdk/ObjectArray.inl>

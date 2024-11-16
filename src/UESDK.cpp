@@ -1,4 +1,4 @@
-#include <UGSDK.hpp>
+#include <UESDK.hpp>
 #include <private/OffsetFinder.hpp>
 
 namespace SDK
@@ -6,28 +6,25 @@ namespace SDK
     Status Init()
     {
         if (!OffsetFinder::FindFMemoryRealloc())
-            return Status::FMemoryRealloc;
+            return Status::Failed_FMemoryRealloc;
 
         if (!OffsetFinder::FindGObjects())
-            return Status::GObjects;
+            return Status::Failed_GObjects;
 
         if (!OffsetFinder::FindFNameConstructorNarrow())
-            return Status::NarrowFNameConstructor;
+            return Status::Failed_NarrowFNameConstructor;
 
         if (!OffsetFinder::FindFNameConstructorWide())
-            return Status::WideFNameConstructor;
+            return Status::Failed_WideFNameConstructor;
 
         if (!OffsetFinder::FindAppendString())
-            return Status::AppendString;
+            return Status::Failed_AppendString;
 
         if (const auto Status = OffsetFinder::SetupMemberOffsets(); Status != Status::Success)
             return Status;
 
-        if (!OffsetFinder::FindConsoleCommandIdx())
-            return Status::ConsoleCommand;
-
         if (!OffsetFinder::FindProcessEventIdx())
-            return Status::ProcessEvent;
+            return Status::Failed_ProcessEvent;
 
         return Status::Success;
     }

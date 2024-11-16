@@ -1,8 +1,7 @@
 #pragma once
-
-#include <ugsdk/ObjectArray.hpp>
-#include <ugsdk/UnrealContainers.hpp>
-#include <ugsdk/UnrealObjects.hpp>
+#include <uesdk/ObjectArray.hpp>
+#include <uesdk/UnrealContainers.hpp>
+#include <uesdk/UnrealObjects.hpp>
 
 namespace SDK
 {
