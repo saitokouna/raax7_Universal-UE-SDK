@@ -1,6 +1,4 @@
-<div style="text-align: center; font-size: 2em; font-weight: bold;">
-  Universal-UE-SDK
-</div>
+<h1 align="center">Universal-UE-SDK</h1>
 
 <p align="center">A simple UE4 and UE5 wrapper for fundamental internal Unreal-Engine structs, classes and functionality.
 </p>
@@ -85,7 +83,7 @@ bool ListActorNamesAndLocations()
             continue;
 
         // Use UObject::Call to call the UFunction, this way the library will automatically setup the parameters struct for you.
-        FVector ActorPos = Obj->Call<"Actor", "K2_GetActorLocation", FVector>();
+        FVector ActorPos = Obj->CallAuto<"Actor", "K2_GetActorLocation", FVector>();
         std::string ActorName = Obj->Name().ToString();
         
         // Output the actor name and position.
