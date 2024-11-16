@@ -82,7 +82,7 @@ bool ListActorNamesAndLocations()
         if (!Obj || Obj->IsDefaultObject() || !Obj->IsA(ActorClass))
             continue;
 
-        // Use UObject::Call to call the UFunction, this way the library will automatically setup the parameters struct for you.
+        // Use UObject::CallAuto to call the UFunction, this way the library will automatically setup the parameters struct for you.
         FVector ActorPos = Obj->CallAuto<"Actor", "K2_GetActorLocation", FVector>();
         std::string ActorName = Obj->Name().ToString();
         
