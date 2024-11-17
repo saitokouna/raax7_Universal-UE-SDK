@@ -36,6 +36,7 @@ namespace SDK
 
     /**
      * @brief Used to find a UFunction member of a UClass.
+     * @brief This does not search inhereted classes, so make sure you use the exact class name that contains the member you want.
      *
      * @param[in] ClassName - Name of the target UClass.
      * @param[in] FunctionName - Name of the target UFunction.
@@ -88,6 +89,7 @@ namespace SDK
 
     /**
      * @brief Used to find a property member of a UClass.
+     * @brief This does not search inhereted classes, so make sure you use the exact class name that contains the member you want.
      *
      * @param[in] ClassName - Name of the target UClass.
      * @param[in] PropertyName - Name of the target property.

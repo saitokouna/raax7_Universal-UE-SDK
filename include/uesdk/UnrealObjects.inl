@@ -153,4 +153,34 @@ namespace SDK
             }
         }
     }
+
+    template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
+    MemberType GetMember()
+    {
+        static int32_t Offset = OFFSET_NOT_FOUND;
+        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
+            throw std::runtime_error("Failed to find member offset!");
+        }
+        return *(MemberType*)((uintptr_t)this + Offset);
+    }
+
+    template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
+    MemberType GetMemberPtr()
+    {
+        static int32_t Offset = OFFSET_NOT_FOUND;
+        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
+            throw std::runtime_error("Failed to find member offset!");
+        }
+        return (MemberType*)((uintptr_t)this + Offset);
+    }
+
+    template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
+    void SetMember(MemberType Value)
+    {
+        static int32_t Offset = OFFSET_NOT_FOUND;
+        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
+            throw std::runtime_error("Failed to find member offset!");
+        }
+        return *(MemberType*)(__int64(this) + Offset);
+    }
 }

@@ -61,7 +61,7 @@ namespace SDK
          * @brief - Output arguments are only supported using pointers, not references.
          * @brief - Pointers to output arguments can be larger than the actual struct; only the real size of the struct will be copied.
          *
-         * @tparam ClassName and FunctionName - Used to force each template instance to be unique. If no UFunction is provided, it is used to find the target function.
+         * @tparam ClassName and FunctionName - Used to force each template instance to be unique.
          * @tparam ReturnType - The return type of the function, void by default.
          * @tparam ...Args - Types of the arguments to be sent to the UFunction.
          * @param[in] Function - A pointer to the UFunction. If it is nullptr, the UFunction will be found using the ClassName and FunctionName.
@@ -77,9 +77,43 @@ namespace SDK
         template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType = void, typename... Args>
         ReturnType Call(class UFunction* Function, Args&&... args);
 
-        /** @brief Simple wrapper to automatically find the UFunction from the template parameters. For full documentation, read the original Call function. */
+        /** @brief Wrapper to automatically find the UFunction from the template parameters. For full documentation read the original UObject::Call function. */
         template <StringLiteral ClassName, StringLiteral FunctionName, typename ReturnType = void, typename... Args>
         ReturnType CallAuto(Args&&... args);
+
+        /**
+         * @brief FastSearchSingle wrapper to retrieve the value of a member in a class.
+         * @brief This does not search inhereted classes, so make sure you use the exact class name that contains the member you want.
+         * 
+         * @tparam ClassName - The name of the UClass to search for the member in.
+         * @tparam MemberName - The name of the member.
+         * @tparam ObjectType - The type of the member.
+         * 
+         * @return The value of the class member.
+         * 
+         * @throws std::runtime_error - If FastSearchSingle was unable to find the member offset.
+         */
+        template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
+        MemberType GetMember();
+
+        /** @brief Alternative version of UObject::GetMember that returns a pointer to the member and doesn't dereference it. For full documentation read the original UObject::GetMember function. */
+        template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
+        MemberType GetMemberPtr();
+
+         /**
+         * @brief FastSearchSingle wrapper to set the value of a member in a class.
+         * @brief This does not search inhereted classes, so make sure you use the exact class name that contains the member you want.
+         *
+         * @tparam ClassName - The name of the UClass to search for the member in.
+         * @tparam MemberName - The name of the member.
+         * @tparam ObjectType - The type of the member.
+         *
+         * @param Value - The value to set the member to.
+         *
+         * @throws std::runtime_error - If FastSearchSingle was unable to find the member offset.
+         */
+        template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
+        void SetMember(MemberType Value);
 
     protected:
         template <int N>
