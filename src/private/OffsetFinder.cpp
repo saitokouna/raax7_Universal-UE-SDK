@@ -284,9 +284,9 @@ namespace SDK::OffsetFinder
     int32_t Find_UFunction_Func()
     {
         for (int i = 0x40; i < 0x140; i += 8) {
-            if (Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>(WasInputKeyJustPressed + i)) &&
-                Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>(ToggleSpeaking + i)) &&
-                Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>(SwitchLevel + i))) {
+            if (Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>((uintptr_t)WasInputKeyJustPressed + i)) &&
+                Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>((uintptr_t)ToggleSpeaking + i)) &&
+                Memory::IsInProcessRange(*reinterpret_cast<uintptr_t*>((uintptr_t)SwitchLevel + i))) {
                 return i;
             }
         }
