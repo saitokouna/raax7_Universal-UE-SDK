@@ -155,7 +155,7 @@ namespace SDK
     }
 
     template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
-    MemberType GetMember()
+    MemberType UObject::GetMember()
     {
         static int32_t Offset = OFFSET_NOT_FOUND;
         if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
@@ -165,7 +165,7 @@ namespace SDK
     }
 
     template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
-    MemberType* GetMemberPtr()
+    MemberType* UObject::GetMemberPtr()
     {
         static int32_t Offset = OFFSET_NOT_FOUND;
         if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
@@ -175,7 +175,7 @@ namespace SDK
     }
 
     template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
-    void SetMember(MemberType Value)
+    void UObject::SetMember(MemberType Value)
     {
         static int32_t Offset = OFFSET_NOT_FOUND;
         if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
