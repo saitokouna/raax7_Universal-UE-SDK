@@ -98,7 +98,7 @@ namespace SDK
 
         /** @brief Alternative version of UObject::GetMember that returns a pointer to the member and doesn't dereference it. For full documentation read the original UObject::GetMember function. */
         template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
-        MemberType GetMemberPtr();
+        MemberType* GetMemberPtr();
 
          /**
          * @brief FastSearchSingle wrapper to set the value of a member in a class.

@@ -165,7 +165,7 @@ namespace SDK
     }
 
     template <StringLiteral ClassName, StringLiteral MemberName, typename MemberType>
-    MemberType GetMemberPtr()
+    MemberType* GetMemberPtr()
     {
         static int32_t Offset = OFFSET_NOT_FOUND;
         if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
