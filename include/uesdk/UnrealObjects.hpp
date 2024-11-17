@@ -14,7 +14,7 @@ namespace SDK
     {
         bool Found = false;
         int32_t Flags;
-        uint16_t Offset;
+        int32_t Offset;
         uint8_t ByteMask;
     };
 }

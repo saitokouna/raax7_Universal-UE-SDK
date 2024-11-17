@@ -98,10 +98,10 @@ namespace SDK
     {
         FName ClassName;
         FName PropertyName;
-        uint16_t* OutOffset;
+        int32_t* OutOffset;
         uint8_t* OutMask;
 
-        explicit FSProperty(const std::string& ClassName, const std::string& PropertyName, uint16_t* OutOffset, uint8_t* OutMask)
+        explicit FSProperty(const std::string& ClassName, const std::string& PropertyName, int32_t* OutOffset, uint8_t* OutMask)
             : ClassName(FName(ClassName))
             , PropertyName(FName(PropertyName))
             , OutOffset(OutOffset)

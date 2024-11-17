@@ -4,7 +4,7 @@
 
 namespace SDK::Offsets
 {
-    using Offset_t = uint16_t;
+    using Offset_t = int32_t;
 
     namespace UObject
     {

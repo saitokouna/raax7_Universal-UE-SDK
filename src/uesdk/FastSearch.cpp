@@ -33,7 +33,7 @@ namespace SDK
                     if (!Obj->HasTypeFlag(CASTCLASS_UEnum) || Obj->Name() != It->Enum.EnumName)
                         break;
 
-                    SDK::UEnum* ObjEnum = reinterpret_cast<SDK::UEnum*>(Obj);
+                    UEnum* ObjEnum = reinterpret_cast<UEnum*>(Obj);
                     int64_t Value = ObjEnum->FindEnumerator(It->Enum.EnumeratorName);
                     if (Value == OFFSET_NOT_FOUND)
                         break;
@@ -50,7 +50,7 @@ namespace SDK
                     if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || Obj->Name() != It->Function.ClassName)
                         break;
 
-                    SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
+                    UStruct* ObjStruct = reinterpret_cast<UStruct*>(Obj);
                     UFunction* Function = ObjStruct->FindFunction(It->Function.FunctionName);
                     if (!Function)
                         break;
@@ -64,7 +64,7 @@ namespace SDK
                     if (!Obj->HasTypeFlag(CASTCLASS_UStruct) || Obj->Name() != It->Property.ClassName)
                         break;
 
-                    SDK::UStruct* ObjStruct = reinterpret_cast<SDK::UStruct*>(Obj);
+                    UStruct* ObjStruct = reinterpret_cast<UStruct*>(Obj);
                     PropertyInfo Info = ObjStruct->FindProperty(It->Property.PropertyName);
                     if (!Info.Found)
                         break;

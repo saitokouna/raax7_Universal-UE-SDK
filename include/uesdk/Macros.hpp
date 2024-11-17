@@ -1,7 +1,7 @@
 #pragma once
 #include <type_traits>
 
-#define OFFSET_NOT_FOUND -1
+#define OFFSET_NOT_FOUND INT32_MAX
 
 #define TYPE_WRAPPER(...) __VA_ARGS__
 
