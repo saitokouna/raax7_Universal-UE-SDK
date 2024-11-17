@@ -181,6 +181,6 @@ namespace SDK
         if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
             throw std::runtime_error("Failed to find member offset!");
         }
-        return *(MemberType*)(__int64(this) + Offset);
+        *(MemberType*)(__int64(this) + Offset) = Value;
     }
 }
