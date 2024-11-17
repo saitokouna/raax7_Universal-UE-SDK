@@ -58,10 +58,6 @@ namespace SDK
     struct FWeakObjectPtr
     {
     public:
-        FWeakObjectPtr() = delete;
-        ~FWeakObjectPtr() = delete;
-
-    public:
         int32_t ObjectIndex;
         int32_t ObjectSerialNumber;
 
@@ -98,9 +94,6 @@ namespace SDK
     class TPersistentObjectPtr
     {
     public:
-        TPersistentObjectPtr() = default;
-
-    public:
         FWeakObjectPtr WeakPtr;
         int32_t TagAtLastTest;
         TObjectID ObjectID;
@@ -123,9 +116,6 @@ namespace SDK
     class TSoftObjectPtr : public FSoftObjectPtr
     {
     public:
-        TSoftObjectPtr() = default;
-
-    public:
         UEType* Get() const
         {
             return static_cast<UEType*>(TPersistentObjectPtr::Get());
@@ -139,9 +129,6 @@ namespace SDK
     template <typename UEType>
     class TSoftClassPtr : public FSoftObjectPtr
     {
-    public:
-        TSoftClassPtr() = default;
-
     public:
         UEType* Get() const
         {
