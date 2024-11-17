@@ -20,6 +20,7 @@
     <li><a href="#project-info">Project Info</a></li>
     <li><a href="#how-to-help">How to Help</a></li>
     <li><a href="#how-to-use">How to Use</a></li>
+    <li><a href="#credits">Credits</a></li>
 </ol>
 
 
@@ -94,3 +95,7 @@ bool ListActorNamesAndLocations()
     return true;
 }
 ```
+
+
+## Credits
+[Dumper-7](https://github.com/Encryqed/Dumper-7) - This project was a huge inspiration and wouldn't have been possible without them.
