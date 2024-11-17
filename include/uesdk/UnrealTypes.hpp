@@ -143,10 +143,6 @@ namespace SDK
     class FFieldVariant
     {
     public:
-        FFieldVariant() = delete;
-        ~FFieldVariant() = delete;
-
-    public:
         using ContainerType = union
         {
             class FField* Field;
@@ -159,10 +155,6 @@ namespace SDK
     class FFieldClass
     {
     public:
-        FFieldClass() = delete;
-        ~FFieldClass() = delete;
-
-    public:
         FName Name;
         uint64_t Id;
         uint64_t CastFlags;
@@ -172,10 +164,6 @@ namespace SDK
     };
     class FField
     {
-    public:
-        FField() = delete;
-        ~FField() = delete;
-
     public:
         void** VFT;
         FFieldClass* ClassPrivate;
@@ -190,10 +178,6 @@ namespace SDK
     class FProperty : public FField
     {
     public:
-        FProperty() = delete;
-        ~FProperty() = delete;
-
-    public:
         int32_t ArrayDim;
         int32_t ElementSize;
         uint64_t PropertyFlags;
@@ -206,10 +190,6 @@ namespace SDK
     };
     class FBoolProperty final : public FProperty
     {
-    public:
-        FBoolProperty() = delete;
-        ~FBoolProperty() = delete;
-
     public:
         uint8_t FieldSize;
         uint8_t ByteOffset;
