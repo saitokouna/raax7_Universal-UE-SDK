@@ -98,6 +98,9 @@ namespace SDK
     class TPersistentObjectPtr
     {
     public:
+        TPersistentObjectPtr() = default;
+
+    public:
         FWeakObjectPtr WeakPtr;
         int32_t TagAtLastTest;
         TObjectID ObjectID;
@@ -120,6 +123,9 @@ namespace SDK
     class TSoftObjectPtr : public FSoftObjectPtr
     {
     public:
+        TSoftObjectPtr() = default;
+
+    public:
         UEType* Get() const
         {
             return static_cast<UEType*>(TPersistentObjectPtr::Get());
@@ -133,6 +139,9 @@ namespace SDK
     template <typename UEType>
     class TSoftClassPtr : public FSoftObjectPtr
     {
+    public:
+        TSoftClassPtr() = default;
+
     public:
         UEType* Get() const
         {
