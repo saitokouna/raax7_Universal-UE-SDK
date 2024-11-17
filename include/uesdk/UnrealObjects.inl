@@ -158,7 +158,7 @@ namespace SDK
     MemberType UObject::GetMember()
     {
         static int32_t Offset = OFFSET_NOT_FOUND;
-        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
+        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName.c_str(), MemberName.c_str(), &Offset, nullptr))) {
             throw std::runtime_error("Failed to find member offset!");
         }
         return *(MemberType*)((uintptr_t)this + Offset);
@@ -168,7 +168,7 @@ namespace SDK
     MemberType* UObject::GetMemberPtr()
     {
         static int32_t Offset = OFFSET_NOT_FOUND;
-        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
+        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName.c_str(), MemberName.c_str(), &Offset, nullptr))) {
             throw std::runtime_error("Failed to find member offset!");
         }
         return (MemberType*)((uintptr_t)this + Offset);
@@ -178,9 +178,9 @@ namespace SDK
     void UObject::SetMember(MemberType Value)
     {
         static int32_t Offset = OFFSET_NOT_FOUND;
-        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName, MemberName, &Offset, nullptr))) {
+        if (Offset == OFFSET_NOT_FOUND && !FastSearchSingle(FSProperty(ClassName.c_str(), MemberName.c_str(), &Offset, nullptr))) {
             throw std::runtime_error("Failed to find member offset!");
         }
-        *(MemberType*)(__int64(this) + Offset) = Value;
+        *(MemberType*)((uintptr_t)this + Offset) = Value;
     }
 }
