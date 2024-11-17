@@ -26,9 +26,6 @@ namespace SDK
         if (!OffsetFinder::FindProcessEventIdx())
             return Status::Failed_ProcessEvent;
 
-        StringLiteral a = "";
-        std::string a2 = a.c_str();
-
         return Status::Success;
     }
 }
