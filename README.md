@@ -4,13 +4,14 @@
 </p>
 <p align="center">
   If you found this useful, please join the Discord server and star the project!<br>
-  This project is still under development. Any and all help and bug reporting is appreciated!
+  This project is still under development. Any and all help and bug reporting is appreciated!<br>
+  A lot of the code from this repo is taken from Dumper-7, so please go over and star them too.
 </p>
 
 <p align="center">
 	<a href="https://discord.gg/QB2aafth4T">Discord Server</a> |
 	<a href="https://github.com/raax7/Universal-UE-SDK/issues">Report an Issue</a> |
-	<a href="https://github.com/Encryqed/Dumper-7">Dumper-7</a> |
+	<a href="https://github.com/Encryqed/Dumper-7">Dumper-7</a>
 </p>
 <p align="center">
     <img alt="Stars" src="https://img.shields.io/github/stars/raax7/Universal-UE-SDK?color=blue&style=for-the-badge">
