@@ -9,7 +9,8 @@
 
 <p align="center">
 	<a href="https://discord.gg/QB2aafth4T">Discord Server</a> |
-	<a href="https://github.com/raax7/Universal-UE-SDK/issues">Report an Issue</a>
+	<a href="https://github.com/raax7/Universal-UE-SDK/issues">Report an Issue</a> |
+	<a href="https://github.com/Encryqed/Dumper-7">Dumper-7</a> |
 </p>
 <p align="center">
     <img alt="Stars" src="https://img.shields.io/github/stars/raax7/Universal-UE-SDK?color=blue&style=for-the-badge">
@@ -17,11 +18,15 @@
 
 ## Table of Contents
 <ol>
+    <li><a href="#credits">Credits</a></li>
     <li><a href="#project-info">Project Info</a></li>
     <li><a href="#how-to-help">How to Help</a></li>
     <li><a href="#how-to-use">How to Use</a></li>
-    <li><a href="#credits">Credits</a></li>
 </ol>
+
+
+## Credits
+[Dumper-7](https://github.com/Encryqed/Dumper-7) - All of the universalness of this project is from Dumper-7. It was brought to my attention that about 50% of the source code is completely copied from them, and I apologise for that. Dumper-7 is by far the best UE-SDK dumper now. If you decide to star or use this repo then **please** go over to Dumper-7 and star them.
 
 
 ## Project Info
@@ -95,7 +100,3 @@ bool ListActorNamesAndLocations()
     return true;
 }
 ```
-
-
-## Credits
-[Dumper-7](https://github.com/Encryqed/Dumper-7) - This project was a huge inspiration and wouldn't have been possible without them.
